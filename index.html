@@ -17,6 +17,7 @@
             --border: rgba(255, 255, 255, 0.1);
             --danger: #f43f5e;
             --success: #10b981;
+            --logo-gradient: linear-gradient(to right, #fde68a, #fbbf24, #f59e0b, #fbbf24, #fde68a);
         }
 
         body {
@@ -31,7 +32,7 @@
         #login-screen { width: 100%; max-width: 350px; margin-top: 100px; animation: fadeIn 0.5s ease-out; }
         #main-admin { width: 100%; max-width: 410px; display: none; }
 
-        /* --- Luxury VIP Card --- */
+        /* --- Luxury VIP Card (Capture Area) --- */
         #capture-area {
             width: 100%; height: 230px;
             background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
@@ -39,11 +40,31 @@
             margin-bottom: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             border: 1px solid var(--border);
+            padding: 20px; box-sizing: border-box;
         }
 
-        .slip-logo { width: 70px; height: 70px; border-radius: 18px; margin-bottom: 12px; object-fit: cover; }
-        .slip-title { font-size: 24px; font-weight: 800; letter-spacing: 3px; margin-bottom: 15px; background: linear-gradient(to right, #fff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .slip-content { width: 80%; }
+        /* Logo ပုံ မပျောက်အောင် သေချာပြင်ဆင်ထားမှု */
+        .slip-logo { 
+            width: 80px; 
+            height: 80px; 
+            border-radius: 20px; 
+            margin-bottom: 12px; 
+            object-fit: cover;
+            border: 2px solid rgba(255,255,255,0.1);
+        }
+        
+        .slip-title { 
+            font-size: 26px; 
+            font-weight: 800; 
+            letter-spacing: 4px; 
+            margin-bottom: 15px; 
+            background: var(--logo-gradient);
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0px 5px 15px rgba(245, 158, 11, 0.3);
+        }
+
+        .slip-content { width: 90%; }
         .slip-row { display: flex; justify-content: space-between; font-size: 11px; margin: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 4px; }
         .slip-row b { color: var(--primary); }
 
@@ -95,12 +116,12 @@
         </div>
 
         <div id="capture-area">
-            <img src="https://raw.githubusercontent.com/yawlawt/YTPlusVip/main/images/icon.png" alt="Logo" class="slip-logo">
+            <img src="https://raw.githubusercontent.com/yawlawt/YTPlusVip/main/images/icon.png" alt="Logo" class="slip-logo" crossorigin="anonymous">
             <div class="slip-title">YT PLUS VIP</div>
             <div class="slip-content">
                 <div class="slip-row"><span>CUSTOMER ID</span> <b id="p-id">0000</b></div>
                 <div class="slip-row"><span>HOLDER NAME</span> <b id="p-name">CLIENT NAME</b></div>
-                <div class="slip-row"><span>EXPIRY DATE</span> <b id="p-exp">2024-XX-XX</b></div>
+                <div class="slip-row"><span>EXPIRY DATE</span> <b id="p-exp">2026-XX-XX</b></div>
             </div>
         </div>
 
@@ -174,7 +195,6 @@
         });
     }
 
-    // Filter Logic
     window.filterList = (type) => {
         currentFilter = type;
         document.getElementById('tab-all').classList.toggle('active', type === 'all');
@@ -188,14 +208,12 @@
         const container = document.getElementById("user-list-container");
         const searchVal = document.getElementById('searchInput').value.toLowerCase();
         
-        // Filter Logic
         let displayList = masterData.filter(u => {
             const matchesSearch = u.id.toLowerCase().includes(searchVal) || (u.username && u.username.toLowerCase().includes(searchVal));
             const matchesTab = currentFilter === 'all' ? true : u.isActive === true;
             return matchesSearch && matchesTab;
         });
 
-        // Stats
         const activeUsers = masterData.filter(u => u.isActive).length;
         document.getElementById("activeCount").innerText = activeUsers;
         document.getElementById("countNum").innerText = masterData.length;
@@ -242,19 +260,30 @@
         }
     };
 
-    // Firebase Actions
+    // --- ပုံမပျောက်အောင် သေချာပြင်ထားသော Save Function ---
     window.saveAndDownload = async () => {
         const id = document.getElementById('docId').value.trim();
         const name = document.getElementById('username').value.trim();
         const exp = document.getElementById('expiry').value;
+        
         if(!id || !name || !exp) return alert("ဖြည့်စွက်ပါ");
+        
         const isExpired = new Date(exp) < new Date().setHours(0,0,0,0);
         await setDoc(doc(db, "users", id), { username: name, expiryDate: exp, isActive: !isExpired }, { merge: true });
         
-        html2canvas(document.getElementById('capture-area'), { scale: 2, backgroundColor: "#0f172a" }).then(canvas => {
+        // Screenshot ရိုက်သည့်အပိုင်း
+        const captureArea = document.getElementById('capture-area');
+        
+        html2canvas(captureArea, {
+            scale: 3, // ပုံထွက် Quality ပိုကောင်းစေရန်
+            useCORS: true, // အခြား Website မှ Logo ပုံကို Screenshot ထဲပါလာအောင် ခွင့်ပြုချက်တောင်းရန်
+            allowTaint: true,
+            backgroundColor: "#0f172a",
+            logging: false
+        }).then(canvas => {
             const link = document.createElement('a');
-            link.download = `YT_${id}.png`;
-            link.href = canvas.toDataURL();
+            link.download = `YT_VIP_${id}.png`;
+            link.href = canvas.toDataURL("image/png");
             link.click();
         });
     };
@@ -278,7 +307,7 @@
     function updatePreview() {
         document.getElementById('p-id').innerText = document.getElementById('docId').value || "0000";
         document.getElementById('p-name').innerText = (document.getElementById('username').value || "CLIENT NAME").toUpperCase();
-        document.getElementById('p-exp').innerText = document.getElementById('expiry').value || "2024-XX-XX";
+        document.getElementById('p-exp').innerText = document.getElementById('expiry').value || "2026-XX-XX";
     }
 
     document.querySelectorAll('.u-input').forEach(el => el.oninput = updatePreview);
