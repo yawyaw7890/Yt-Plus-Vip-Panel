@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YT PLUS VIP - Premium Admin</title>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Padauk:wght@400;700&display=swap');
+        
+        :root {
+            --primary: #818cf8;
+            --accent: #f472b6;
+            --bg: #0f172a;
+            --glass: rgba(30, 41, 59, 0.7);
+            --border: rgba(255, 255, 255, 0.1);
+            --danger: #f43f5e;
+            --success: #10b981;
+        }
+
+        body {
+            font-family: 'Outfit', 'Padauk', sans-serif;
+            background: var(--bg);
+            background-image: radial-gradient(circle at top right, #1e1b4b, transparent), 
+                              radial-gradient(circle at bottom left, #020617, transparent);
+            margin: 0; padding: 20px; color: #f8fafc;
+            display: flex; flex-direction: column; align-items: center; min-height: 100vh;
+        }
+
+        /* Access Denied Overlay */
+        #access-denied {
+            display: none;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.95);
+            z-index: 9999; flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; backdrop-filter: blur(10px);
+        }
+
+        #login-screen {
+            width: 100%; max-width: 350px; margin-top: 100px;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        #main-admin { width: 100%; max-width: 410px; display: none; }
+
+        /* --- Luxury VIP Card --- */
+        #capture-area {
+            width: 100%; height: 230px;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-radius: 24px; position: relative; overflow: hidden;
+            margin-bottom: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            border: 1px solid var(--border);
+        }
+
+        .slip-logo {
+            width: 70px; height: 70px; border-radius: 18px; margin-bottom: 12px;
+            border: 2px solid rgba(255,255,255,0.1); 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            object-fit: cover;
+        }
+
+        .slip-title {
+            font-size: 24px; font-weight: 800; letter-spacing: 3px; margin-bottom: 15px;
+            background: linear-gradient(to right, #fff, #94a3b8);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+
+        .slip-content { width: 80%; }
+        .slip-row { 
+            display: flex; justify-content: space-between; font-size: 11px; 
+            margin: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 4px;
+        }
+        .slip-row span { color: #64748b; font-weight: 600; }
+        .slip-row b { color: var(--primary); }
+
+        .glass-panel {
+            background: var(--glass); backdrop-filter: blur(15px);
+            border-radius: 24px; padding: 25px; margin-bottom: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .u-input {
+            width: 100%; padding: 14px; margin-bottom: 12px;
+            background: rgba(0,0,0,0.2); border: 1px solid var(--border);
+            border-radius: 14px; color: white; font-family: 'Padauk', sans-serif;
+            box-sizing: border-box; transition: 0.3s;
+        }
+        .u-input:focus { outline: none; border-color: var(--primary); background: rgba(0,0,0,0.4); }
+
+        .btn-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 15px; }
+        .btn-date {
+            padding: 10px 0; border-radius: 12px; border: 1px solid var(--border);
+            background: rgba(255,255,255,0.03); color: #94a3b8; cursor: pointer; font-size: 11px;
+            transition: 0.3s; font-weight: 600;
+        }
+        .btn-date:hover { background: var(--primary); color: white; }
+
+        .btn-main {
+            width: 100%; padding: 16px; border-radius: 16px; border: none;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            color: white; font-weight: 700; font-size: 15px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            transition: 0.3s;
+        }
+        .btn-main:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3); }
+
+        .btn-logout {
+            background: rgba(244, 63, 94, 0.2); color: var(--danger);
+            border: 1px solid rgba(244, 63, 94, 0.3);
+            padding: 8px 15px; border-radius: 12px; cursor: pointer;
+            font-size: 12px; font-weight: 600; margin-bottom: 20px;
+            transition: 0.3s; align-self: flex-end;
+        }
+
+        .user-card {
+            background: var(--glass); border-radius: 20px; padding: 18px;
+            margin-bottom: 15px; border: 1px solid var(--border);
+            transition: 0.3s; position: relative; overflow: hidden;
+        }
+
+        .user-header { display: flex; justify-content: space-between; align-items: flex-start; }
+        .user-name { font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 2px; }
+        .user-id { font-size: 12px; color: var(--primary); font-weight: 600; }
+        .user-days { font-size: 11px; color: #94a3b8; margin-top: 8px; font-family: 'Padauk'; }
+
+        .status-badge {
+            font-size: 10px; padding: 2px 8px; border-radius: 20px; 
+            margin-left: 8px; text-transform: uppercase; font-weight: bold;
+        }
+        .status-expired { background: rgba(244, 63, 94, 0.2); color: var(--danger); }
+        .status-active { background: rgba(16, 185, 129, 0.2); color: var(--success); }
+
+        .action-btns { display: flex; gap: 8px; }
+        .btn-action {
+            width: 36px; height: 36px; border-radius: 12px; border: none;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: 0.2s; color: white;
+        }
+
+        .progress-bar { width: 100%; height: 5px; background: rgba(255,255,255,0.05); border-radius: 10px; margin-top: 15px; }
+        .progress-fill { height: 100%; border-radius: 10px; transition: 1s ease-in-out; }
+
+        .card-expired { border-left: 4px solid var(--danger); opacity: 0.8; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <div id="access-denied">
+        <i class="fas fa-user-lock" style="font-size: 50px; color: var(--danger); margin-bottom: 20px;"></i>
+        <h2 style="margin: 0;">အသုံးပြုခွင့် သက်တမ်းကုန်ဆုံးပါပြီ</h2>
+        <p style="color: #94a3b8; margin-top: 10px;">ကျေးဇူးပြု၍ Admin ထံ ဆက်သွယ်ပါ။</p>
+    </div>
+
+    <div id="login-screen" class="glass-panel">
+        <h2 style="text-align: center; margin-bottom: 25px; letter-spacing: 2px;">ADMIN LOGIN</h2>
+        <input type="text" id="adminUser" class="u-input" placeholder="အသုံးပြုသူအမည်">
+        <input type="password" id="adminPass" class="u-input" placeholder="လျှို့ဝှက်နံပါတ်">
+        <button class="btn-main" onclick="checkLogin()">လော့ဂ်အင်ဝင်ရန်</button>
+    </div>
+
+    <div id="main-admin">
+        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <span style="font-weight: bold; color: var(--primary);">WELCOME ADMIN</span>
+            <button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </div>
+
+        <div id="capture-area">
+            <img src="https://raw.githubusercontent.com/yawlawt/YTPlusVip/main/images/icon.png" alt="Logo" class="slip-logo">
+            <div class="slip-title">YT PLUS VIP</div>
+            <div class="slip-content">
+                <div class="slip-row"><span>CUSTOMER ID</span> <b id="p-id">0000</b></div>
+                <div class="slip-row"><span>HOLDER NAME</span> <b id="p-name">CLIENT NAME</b></div>
+                <div class="slip-row"><span>EXPIRY DATE</span> <b id="p-exp">2024-XX-XX</b></div>
+            </div>
+        </div>
+
+        <div class="glass-panel">
+            <input type="text" id="docId" class="u-input" placeholder="ID (ဥပမာ - 8899)">
+            <input type="text" id="username" class="u-input" placeholder="အသုံးပြုသူအမည်">
+            <div class="btn-grid">
+                <button class="btn-date" onclick="setAutoDate(1)">1 ရက်</button>
+                <button class="btn-date" onclick="setAutoDate(30)">1 လ</button>
+                <button class="btn-date" onclick="setAutoDate(60)">2 လ</button>
+                <button class="btn-date" onclick="setAutoDate(90)">3 လ</button>
+            </div>
+            <input type="date" id="expiry" class="u-input">
+            <button class="btn-main" onclick="saveAndDownload()">
+                <i class="fas fa-save"></i> သိမ်းဆည်းမည်
+            </button>
+        </div>
+
+        <div class="glass-panel" style="padding: 15px 20px;">
+            <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <span style="font-size:13px; font-weight: 600;">အသုံးပြုသူများ: <b id="countNum" style="color:var(--primary)">0</b></span>
+                <i class="fas fa-search" style="color:var(--primary); font-size:12px;"></i>
+            </div>
+            <input type="text" id="searchInput" class="u-input" style="margin-bottom:0;" placeholder="အမည် သို့မဟုတ် ID ဖြင့်ရှာရန်..." oninput="searchUsers()">
+        </div>
+
+        <div id="user-list-container"></div>
+    </div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, doc, setDoc, onSnapshot, deleteDoc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyDGCsxM1ccZ_ZswwNPZDI-ykOm5yJU1CIw",
+        authDomain: "yt-plus-f2adb.firebaseapp.com",
+        projectId: "yt-plus-f2adb",
+        storageBucket: "yt-plus-f2adb.appspot.com",
+        messagingSenderId: "395214377046",
+        appId: "1:395214377046:android:86e632965381ea0d7d6bf7"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const usersCol = collection(db, "users");
+    let masterData = [];
+
+    // --- SECURITY CHECK (Expiry Logic) ---
+    // ဒီ Function က user ရဲ့ ID တစ်ခုခုကို check လုပ်ပြီး ပိတ်ချင်ရင် သုံးနိုင်ပါတယ်
+    // (သို့မဟုတ်) အောက်က Render ထဲမှာ ပါတဲ့ logic က user တစ်ဦးချင်းစီအတွက် အလုပ်လုပ်ပါမယ်။
+    
+    window.onload = () => {
+        const isLoggedIn = localStorage.getItem("yt_admin_login");
+        if(isLoggedIn === "true") {
+            showAdminPanel();
+        }
+    };
+
+    window.checkLogin = () => {
+        const u = document.getElementById('adminUser').value;
+        const p = document.getElementById('adminPass').value;
+        if(u === "yawyaw" && p === "lawtaung") {
+            localStorage.setItem("yt_admin_login", "true");
+            showAdminPanel();
+        } else {
+            alert("Username သို့မဟုတ် Password မှားယွင်းနေပါသည်။");
+        }
+    };
+
+    window.logout = () => {
+        if(confirm("Logout ထွက်ရန် သေချာပါသလား?")) {
+            localStorage.removeItem("yt_admin_login");
+            location.reload();
+        }
+    };
+
+    function showAdminPanel() {
+        document.getElementById('login-screen').style.display = "none";
+        document.getElementById('main-admin').style.display = "block";
+        loadData();
+    }
+
+    function loadData() {
+        onSnapshot(usersCol, (snap) => {
+            masterData = [];
+            snap.forEach(d => masterData.push({ id: d.id, ...d.data() }));
+            render(masterData);
+        });
+    }
+
+    // --- SAVE LOGIC ---
+    window.saveAndDownload = async () => {
+        const id = document.getElementById('docId').value.trim();
+        const name = document.getElementById('username').value.trim();
+        const exp = document.getElementById('expiry').value;
+        
+        if(!id || !name || !exp) return alert("အချက်အလက်များ အကုန်ဖြည့်ပါ။");
+
+        // လက်ရှိအချိန်ထက် ကျော်မကျော် စစ်ဆေးခြင်း
+        const isExpired = new Date(exp) < new Date().setHours(0,0,0,0);
+        
+        try {
+            await setDoc(doc(db, "users", id), { 
+                username: name, 
+                expiryDate: exp, 
+                isActive: !isExpired 
+            }, { merge: true });
+
+            // Capture and Download Image
+            html2canvas(document.getElementById('capture-area'), { 
+                scale: 3, 
+                backgroundColor: "#0f172a", 
+                useCORS: true 
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `YTPLUS_${id}.png`;
+                link.href = canvas.toDataURL();
+                link.click();
+            });
+        } catch (e) {
+            alert("Error: " + e.message);
+        }
+    };
+
+    // --- RENDER WITH EXPIRY LOCK ---
+    async function render(list) {
+        const container = document.getElementById("user-list-container");
+        document.getElementById("countNum").innerText = list.length;
+        container.innerHTML = "";
+        
+        // Expiry ရက်နီးသူကို အပေါ်ဆုံးထားမည်
+        list.sort((a, b) => new Date(a.expiryDate) - new Date(b.expiryDate));
+        
+        const now = new Date();
+        now.setHours(0, 0, 0, 0);
+
+        for (const u of list) {
+            const expDate = new Date(u.expiryDate);
+            const diff = expDate - now;
+            const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+            
+            let isExpired = days < 0;
+            let status = u.isActive;
+
+            // --- AUTO DISABLE LOGIC ---
+            // ရက်ကျော်သွားရင် Database မှာ isActive ကို false အလိုအလျောက် သွားပြောင်းပေးတာဖြစ်ပါတယ်
+            if (isExpired && u.isActive === true) {
+                status = false;
+                await updateDoc(doc(db, "users", u.id), { isActive: false });
+            }
+
+            const myanDays = isExpired ? "သက်တမ်းကုန်ဆုံးပါပြီ" : (days === 0 ? "ယနေ့ကုန်မည်" : days + " ရက်ကျန်");
+            const color = days <= 3 ? "var(--danger)" : (days <= 7 ? "#fbbf24" : "var(--success)");
+
+            const div = document.createElement('div');
+            div.className = `user-card ${!status ? 'card-expired' : ''}`;
+            
+            div.innerHTML = `
+                <div class="user-header">
+                    <div>
+                        <div class="user-name">
+                            ${u.username} 
+                            <span class="status-badge ${status ? 'status-active' : 'status-expired'}">
+                                ${status ? 'Active' : 'Expired'}
+                            </span>
+                        </div>
+                        <div class="user-id">ID: ${u.id}</div>
+                        <div class="user-days"><i class="far fa-calendar-alt"></i> ${u.expiryDate} • <span style="color:${color}; font-weight:bold">${myanDays}</span></div>
+                    </div>
+                    <div class="action-btns">
+                        <button class="btn-action" style="background:rgba(255,255,255,0.05)" onclick="toggleStatus('${u.id}', ${!status})">
+                            <i class="fas ${!status ? 'fa-play' : 'fa-pause'}"></i>
+                        </button>
+                        <button class="btn-action" style="background:rgba(99,102,241,0.15); color:var(--primary)" onclick="editU('${u.id}','${u.username}','${u.expiryDate}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn-action" style="background:rgba(244,63,94,0.15); color:var(--accent)" onclick="deleteU('${u.id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width:${isExpired ? 0 : Math.min(100, (days/30)*100)}%; background:${color}; box-shadow: 0 0 10px ${color}66;"></div>
+                </div>
+            `;
+            container.appendChild(div);
+        }
+    }
+
+    // Window global functions
+    window.editU = (id, name, exp) => {
+        document.getElementById('docId').value = id;
+        document.getElementById('username').value = name;
+        document.getElementById('expiry').value = exp;
+        updatePreview();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    window.toggleStatus = async (id, currentStatus) => {
+        await updateDoc(doc(db, "users", id), { isActive: currentStatus });
+    };
+
+    window.deleteU = async (id) => {
+        if(confirm(`${id} ကို ဖျက်ရန် သေချာပါသလား?`)) await deleteDoc(doc(db, "users", id));
+    };
+
+    window.setAutoDate = (days) => {
+        const d = new Date();
+        d.setDate(d.getDate() + days);
+        document.getElementById('expiry').value = d.toISOString().split('T')[0];
+        updatePreview();
+    };
+
+    window.searchUsers = () => {
+        const val = document.getElementById('searchInput').value.toLowerCase();
+        const filtered = masterData.filter(u => u.id.toLowerCase().includes(val) || (u.username && u.username.toLowerCase().includes(val)));
+        render(filtered);
+    };
+
+    function updatePreview() {
+        document.getElementById('p-id').innerText = document.getElementById('docId').value || "0000";
+        document.getElementById('p-name').innerText = (document.getElementById('username').value || "CLIENT NAME").toUpperCase();
+        document.getElementById('p-exp').innerText = document.getElementById('expiry').value || "2024-XX-XX";
+    }
+
+    document.getElementById('docId').oninput = updatePreview;
+    document.getElementById('username').oninput = updatePreview;
+    document.getElementById('expiry').oninput = updatePreview;
+
+</script>
+</body>
+</html>
