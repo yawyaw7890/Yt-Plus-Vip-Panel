@@ -87,7 +87,7 @@
             box-sizing: border-box; color: #334155; margin-bottom: 20px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
-        .avatar-box { width: 60px; height: 60px; background: #2a9d8f; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 28px; font-weight: bold; }
+        .avatar-box { width: 60px; height: 60px; background: #2a9d8f; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 28px; font-weight: bold; overflow: hidden; }
         .info-row { display: flex; align-items: center; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
         .info-row i { width: 30px; color: var(--primary); }
         .info-label { flex: 1; color: #64748b; }
@@ -201,7 +201,28 @@
     const usersCol = collection(db, "users");
     let allUsers = [];
 
-    // --- New User ပြင်ဆင်ခြင်း (Reset Form) ---
+    // --- Update Preview Function ---
+    function updatePreview() {
+        const usernameInput = document.getElementById('username').value;
+        const name = usernameInput || "CLIENT NAME";
+        const isPremium = document.getElementById('isPremium').checked;
+        const isActive = document.getElementById('statusToggle').checked;
+        
+        // Update Card UI
+        document.getElementById('p-name').innerHTML = name + (isPremium ? " 👑" : "");
+        document.getElementById('p-initial').innerText = name.charAt(0).toUpperCase();
+        document.getElementById('p-user-text').innerText = name;
+        document.getElementById('p-id').innerText = document.getElementById('docId').value || "---";
+        document.getElementById('p-exp').innerText = document.getElementById('expiry').value || "---";
+        document.getElementById('p-price').innerText = (document.getElementById('price').value || 0) + " ฿";
+        
+        const statusBadge = document.getElementById('p-status-badge');
+        statusBadge.innerText = isActive ? "ACTIVE" : "INACTIVE";
+        statusBadge.style.background = isActive ? "#dcfce7" : "#fee2e2";
+        statusBadge.style.color = isActive ? "#166534" : "#991b1b";
+    }
+
+    // --- Exposed Global Functions ---
     window.prepareNewUser = () => {
         document.getElementById('docId').value = "";
         document.getElementById('username').value = "";
@@ -209,7 +230,6 @@
         document.getElementById('statusToggle').checked = true;
         document.getElementById('isPremium').checked = true;
         
-        // ယနေ့ရက်စွဲကို Auto ထည့်ပေးခြင်း
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('expiry').value = today;
         
@@ -219,23 +239,12 @@
 
     window.closeModal = () => document.getElementById('userModal').style.display = 'none';
 
-    function updatePreview() {
-        const name = document.getElementById('username').value || "CLIENT NAME";
-        document.getElementById('p-name').innerHTML = name + (document.getElementById('isPremium').checked ? " 👑" : "");
-        document.getElementById('p-initial').innerText = name.charAt(0).toUpperCase();
-        document.getElementById('p-id').innerText = document.getElementById('docId').value || "---";
-        document.getElementById('p-exp').innerText = document.getElementById('expiry').value || "---";
-        document.getElementById('p-price').innerText = (document.getElementById('price').value || 0) + " ฿";
-        
-        const statusBadge = document.getElementById('p-status-badge');
-        statusBadge.innerText = document.getElementById('statusToggle').checked ? "ACTIVE" : "INACTIVE";
-        statusBadge.style.background = document.getElementById('statusToggle').checked ? "#dcfce7" : "#fee2e2";
-        statusBadge.style.color = document.getElementById('statusToggle').checked ? "#166534" : "#991b1b";
-    }
-
     window.searchUsers = () => {
         const term = document.getElementById('searchInput').value.toLowerCase();
-        const filtered = allUsers.filter(u => u.username.toLowerCase().includes(term) || u.id.toLowerCase().includes(term));
+        const filtered = allUsers.filter(u => 
+            (u.username && u.username.toLowerCase().includes(term)) || 
+            (u.id && u.id.toLowerCase().includes(term))
+        );
         renderList(filtered);
     };
 
@@ -245,12 +254,12 @@
         list.forEach(u => {
             const div = document.createElement('div');
             div.className = 'user-item';
-            div.innerHTML = `<div><b>${u.username}</b><br><small>${u.id}</small></div>
+            div.innerHTML = `<div><b>${u.username || 'No Name'}</b><br><small>${u.id}</small></div>
                              <div style="font-size:12px; color:${u.isActive ? '#10b981' : '#f43f5e'}">${u.isActive ? 'Active' : 'Offline'}</div>`;
             div.onclick = () => {
                 document.getElementById('docId').value = u.id;
-                document.getElementById('username').value = u.username;
-                document.getElementById('expiry').value = u.expiryDate;
+                document.getElementById('username').value = u.username || "";
+                document.getElementById('expiry').value = u.expiryDate || "";
                 document.getElementById('price').value = u.price || "";
                 document.getElementById('statusToggle').checked = u.isActive;
                 document.getElementById('isPremium').checked = u.isPremium;
@@ -261,6 +270,7 @@
         });
     }
 
+    // Real-time listener
     onSnapshot(usersCol, (snap) => {
         allUsers = [];
         snap.forEach(d => allUsers.push({ id: d.id, ...d.data() }));
@@ -288,13 +298,20 @@
     window.downloadCard = () => {
         html2canvas(document.getElementById('capture-area'), { scale: 3 }).then(canvas => {
             const link = document.createElement('a');
-            link.download = `VIP_${document.getElementById('username').value}.png`;
+            link.download = `VIP_${document.getElementById('username').value || 'User'}.png`;
             link.href = canvas.toDataURL();
             link.click();
         });
     };
 
-    document.querySelectorAll('.form-control, input[type=checkbox]').forEach(el => el.oninput = updatePreview);
+    // --- Attach Event Listeners for real-time update ---
+    // ဒါက Username နဲ့ အခြား Input တွေ ရိုက်တာနဲ့ Preview မှာ တန်းပေါ်အောင် လုပ်ပေးတာပါ
+    const inputs = document.querySelectorAll('#username, #docId, #expiry, #price, #statusToggle, #isPremium');
+    inputs.forEach(input => {
+        input.addEventListener('input', updatePreview);
+        input.addEventListener('change', updatePreview);
+    });
+
 </script>
 </body>
 </html>
