@@ -1,350 +1,3607 @@
 <!DOCTYPE html>
-<html lang="my">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YT PLUS ADMIN</title>
-    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <title>YT Plus VIP Admin Panel</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Enhanced PWA Meta Tags -->
+    <meta name="theme-color" content="#ff9800">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="JK VIP Admin">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="JK VIP Admin">
+    <meta name="description" content="JK VIP Admin Panel for managing VIP users">
+    <meta name="keywords" content="JK VIP, Admin, Management">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Web App Manifest - UPDATED FOR CHROME -->
+    <link rel="manifest" href="data:application/manifest+json;charset=utf-8;base64,ewogICJuYW1lIjogIkpLIFZJUCBBZG1pbiIsCiAgInNob3J0X25hbWUiOiAiSksgVklQIEFkbWluIiwKICAiZGVzY3JpcHRpb24iOiAiSksgVklQIEFkbWluIFBhbmVsIGZvciBtYW5hZ2luZyBWSVAgdXNlcnMiLAogICJzdGFydF91cmwiOiAiLyIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiI2ZmOTgwMCIsCiAgInRoZW1lX2NvbG9yIjogIiNmZjk4MDAiLAogICJpY29ucyI6IFsKICAgIHsKICAgICAgInNyYyI6ICJodHRwczovL3Jhdy5naXRodWJ1c2VyY29udGVudC5jb20vSlZQTlNIT1AvSktWSVBVRFAvbWFpbi9hZG1pbi5wbmciLAogICAgICAic2l6ZXMiOiAiMTkyeDE5MiIsCiAgICAgICJ0eXBlIjogImltYWdlL3BuZyIsCiAgICAgICJwdXJwb3NlIjogImFueSBtYXNrYWJsZSIKICAgIH0sCiAgICB7CiAgICAgICJzcmMiOiAiaHR0cHM6Ly9yYXcuZ2l0aHViY29udGVudC5jb20vSlZQTlNIT1AvSktWSVBVRFAvbWFpbi9hZG1pbi5wbmciLAogICAgICAic2l6ZXMiOiAiNTEyeDUxMiIsCiAgICAgICJ0eXBlIjogImltYWdlL3BuZyIsCiAgICAgICJwdXJwb3NlIjogImFueSBtYXNrYWJsZSIKICAgIH0KICBdLAogICJzaG9ydF9jdXRzIjogWwogICAgewogICAgICAibmFtZSI6ICJKVklQIEFkbWluIiwKICAgICAgInNob3J0X25hbWUiOiAiSksgVklQIiwKICAgICAgImRlc2NyaXB0aW9uIjogIk1hbmFnZSBWSVAgdXNlcnMiLAogICAgICAidXJscyI6IFsiLyJdCiAgICB9CiAgXSwKICAic2NyZWVuc2hvdHMiOiBbXSwKICAiZmVhdHVyZXMiOiBbCiAgICAid2ViYXBwIiwKICAgICJhcGlzIgogIF0KfQ==">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/JVPNSHOP/JKVIPUDP/main/admin.png">
+    
+    <!-- html2canvas for saving card as image -->
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Padauk:wght@400;700&display=swap');
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
         
         :root {
-            --primary-dark: #1e6b65;
-            --primary: #2a9d8f;
-            --bg-main: #f8fafc;
-            --white: #ffffff;
-            --active: #10b981;
-            --inactive: #f59e0b;
-            --offline: #ef4444;
+            --primary: #ff9800;
+            --primary-dark: #f57c00;
+            --secondary: #ff5722;
+            --light-bg: #f8fafc;
+            --dark-bg: #1a1a2e;
+            --dark-card: #16213e;
+            --dark-text: #e2e8f0;
+            --danger: #f87171;
+            --success: #4ade80;
+            --warning: #ff9800;
+            --info: #60a5fa;
+            --inactive-orange: #ff9800;
         }
-
-        body {
-            font-family: 'Outfit', 'Padauk', sans-serif;
-            background: #238b81;
-            margin: 0; padding: 0;
-            display: flex; flex-direction: column; align-items: center;
-        }
-
-        /* --- Header Section --- */
-        .admin-header {
-            width: 100%; max-width: 450px;
-            padding: 20px; box-sizing: border-box; color: white;
-        }
-        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .app-info { display: flex; align-items: center; gap: 10px; }
-        .logo-box { width: 45px; height: 45px; background: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 20px; }
-
-        /* --- Stats Row --- */
-        .stats-container {
-            display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px;
-        }
-        .stat-card {
-            background: rgba(255,255,255,0.2); backdrop-filter: blur(5px);
-            padding: 10px 5px; border-radius: 10px; text-align: center;
-            cursor: pointer; transition: 0.3s; border: 1px solid transparent;
-        }
-        .stat-card:active { transform: scale(0.95); background: rgba(255,255,255,0.3); }
-        .stat-card.active-filter { border: 1px solid white; background: rgba(255,255,255,0.4); }
-
-        .stat-num { font-size: 20px; font-weight: 800; display: block; }
-        .stat-label { font-size: 10px; font-weight: bold; opacity: 0.9; }
-
-        /* --- Content Body --- */
-        .main-content {
-            width: 100%; max-width: 450px; background: var(--bg-main);
-            border-top-left-radius: 30px; border-top-right-radius: 30px;
-            min-height: 80vh; padding: 20px; box-sizing: border-box;
-        }
-
-        /* --- Search & Add --- */
-        .search-box {
-            background: white; border-radius: 10px; display: flex; align-items: center;
-            padding: 10px 15px; border: 1px solid #e2e8f0; margin-bottom: 15px;
-        }
-        .search-box input { border: none; outline: none; width: 100%; padding-left: 10px; }
-        .btn-add-main {
-            width: 100%; padding: 12px; background: var(--primary); color: white;
-            border: none; border-radius: 10px; font-weight: bold; font-size: 16px;
-            margin-bottom: 20px; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px;
-        }
-
-        /* --- User Card --- */
-        .user-card {
-            background: white; border-radius: 15px; padding: 15px;
-            margin-bottom: 15px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-            border: 1px solid #f1f5f9; position: relative;
-        }
-        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .user-profile { display: flex; align-items: center; gap: 10px; }
-        .avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-        .status-badge { font-size: 9px; padding: 3px 8px; border-radius: 20px; font-weight: bold; }
         
-        .info-grid { display: grid; grid-template-columns: 30px 100px 1fr; font-size: 13px; gap: 5px; margin-top: 5px; }
-        .info-grid i { color: var(--primary); }
-        .info-label { color: #64748b; }
-        .info-value { font-weight: 600; color: #1e293b; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
-        .progress-container { margin-top: 15px; }
-        .progress-bar { height: 6px; background: #e2e8f0; border-radius: 10px; overflow: hidden; margin-bottom: 5px; }
-        .progress-fill { height: 100%; background: var(--active); transition: 0.3s; }
-
-        .card-actions { display: flex; gap: 8px; margin-top: 15px; border-top: 1px solid #f1f5f9; padding-top: 10px; }
-        .action-btn { flex: 1; padding: 8px; border: none; border-radius: 5px; font-size: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; }
-
-        /* --- Modal --- */
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 100; }
-        .modal-content { background: white; width: 95%; max-width: 380px; border-radius: 20px; padding: 20px; box-sizing: border-box; }
-        .form-group { margin-bottom: 12px; }
-        .form-group label { display: block; font-size: 12px; font-weight: bold; margin-bottom: 5px; }
-        .form-group input { width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; box-sizing: border-box; }
-
+        body {
+            background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%);
+            min-height: 100vh;
+            padding: 10px;
+            color: #333;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        
+        body.dark-mode {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e2e8f0;
+        }
+        
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            min-height: calc(100vh - 20px);
+            display: flex;
+            flex-direction: column;
+            transition: background 0.3s;
+        }
+        
+        body.dark-mode .container {
+            background: var(--dark-bg);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+        
+        /* Login Overlay */
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+        
+        body.dark-mode .login-overlay {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+        
+        .login-box {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+        
+        body.dark-mode .login-box {
+            background: var(--dark-card);
+            color: var(--dark-text);
+        }
+        
+        .login-logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            border-radius: 15px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            padding: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .login-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        .login-title {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 5px;
+            color: #ff9800;
+        }
+        
+        body.dark-mode .login-title {
+            color: #ff9800;
+        }
+        
+        .login-subtitle {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        body.dark-mode .login-subtitle {
+            color: #ccc;
+        }
+        
+        .login-input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        
+        .login-input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #475569;
+        }
+        
+        body.dark-mode .login-input-group label {
+            color: #cbd5e1;
+        }
+        
+        .login-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
+            background: #f8fafc;
+            transition: all 0.3s;
+        }
+        
+        body.dark-mode .login-input {
+            background: #2d3748;
+            border-color: #4a5568;
+            color: white;
+        }
+        
+        .login-input:focus {
+            outline: none;
+            border-color: #ff9800;
+            background: white;
+        }
+        
+        body.dark-mode .login-input:focus {
+            background: #4a5568;
+        }
+        
+        .login-btn {
+            background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+        
+        .login-btn:hover {
+            opacity: 0.95;
+            transform: translateY(-2px);
+        }
+        
+        .login-error {
+            color: #f87171;
+            font-size: 14px;
+            margin-top: 10px;
+            min-height: 20px;
+        }
+        
+        /* Android Install Guide */
+        .android-guide-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10001;
+            padding: 20px;
+            backdrop-filter: blur(3px);
+        }
+        
+        .android-guide {
+            background: white;
+            border-radius: 15px;
+            width: 100%;
+            max-width: 400px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            animation: slideUp 0.3s ease-out;
+        }
+        
+        body.dark-mode .android-guide {
+            background: #2d3748;
+        }
+        
+        .android-guide-header {
+            padding: 20px;
+            text-align: center;
+            background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%);
+            color: white;
+        }
+        
+        .android-guide-header h3 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .android-guide-body {
+            padding: 20px;
+        }
+        
+        .android-step {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 10px;
+            background: #f8fafc;
+        }
+        
+        body.dark-mode .android-step {
+            background: #374151;
+        }
+        
+        .step-number {
+            background: #ff9800;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        
+        .step-content h4 {
+            margin-bottom: 5px;
+            color: #1e293b;
+        }
+        
+        body.dark-mode .step-content h4 {
+            color: #e2e8f0;
+        }
+        
+        .step-content p {
+            color: #64748b;
+            font-size: 13px;
+        }
+        
+        body.dark-mode .step-content p {
+            color: #94a3b8;
+        }
+        
+        .android-guide-footer {
+            padding: 15px 20px;
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            text-align: center;
+        }
+        
+        body.dark-mode .android-guide-footer {
+            background: #374151;
+            border-top-color: #4b5563;
+        }
+        
+        .btn-android-check {
+            background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+        }
+        
+        .btn-android-check:hover {
+            transform: translateY(-2px);
+        }
+        
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        /* Header */
+        .compact-header {
+            background: linear-gradient(135deg, #e65100 0%, #bf360c 100%);
+            color: white;
+            padding: 15px 15px 10px;
+            text-align: center;
+            position: relative;
+            flex-shrink: 0;
+        }
+        
+        body.dark-mode .compact-header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+        }
+        
+        .header-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            padding: 5px;
+        }
+        
+        .logo-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        .title-lines {
+            text-align: left;
+        }
+        
+        .title-line {
+            font-size: 16px;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+        
+        .subtitle-small {
+            font-size: 11px;
+            opacity: 0.9;
+            margin-top: 2px;
+            font-weight: 400;
+        }
+        
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+        
+        /* Install Button in Header */
+        .install-btn {
+            background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-left: 10px;
+            animation: pulseInstall 2s infinite;
+        }
+        
+        @keyframes pulseInstall {
+            0% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7); }
+            70% { box-shadow: 0 0 0 8px rgba(74, 222, 128, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); }
+        }
+        
+        .install-btn:hover {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            transform: translateY(-2px);
+        }
+        
+        /* Stats - Make clickable */
+        .compact-stats {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 15px 0 5px;
+            padding: 0 10px;
+            flex-wrap: wrap;
+        }
+        
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 70px;
+            padding: 8px 5px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .stat-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .stat-item.active-filter {
+            background: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
+        }
+        
+        .stat-value-small {
+            font-size: 22px;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 3px;
+        }
+        
+        .stat-label-small {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.9);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+        }
+        
+        .total-stat .stat-value-small {
+            color: #fff;
+        }
+        
+        .active-stat .stat-value-small {
+            color: #4ade80;
+        }
+        
+        .inactive-stat .stat-value-small {
+            color: #ff9800;
+        }
+        
+        .offline-stat .stat-value-small {
+            color: #ff4444;
+        }
+        
+        /* Main Content - Full Width */
+        .compact-content {
+            padding: 15px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        /* Search Box and Add Button Container */
+        .search-add-container {
+            margin-bottom: 15px;
+            width: 100%;
+            flex-shrink: 0;
+        }
+        
+        .search-box-small {
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+        
+        .search-box-small i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #ff9800;
+            font-size: 16px;
+            z-index: 2;
+        }
+        
+        body.dark-mode .search-box-small i {
+            color: #ff9800;
+        }
+        
+        .search-box-small input {
+            width: 100%;
+            padding: 12px 15px 12px 45px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+        }
+        
+        body.dark-mode .search-box-small input {
+            background: #2d3748;
+            border-color: #4a5568;
+            color: white;
+        }
+        
+        .search-box-small input:focus {
+            outline: none;
+            border-color: #ff9800;
+            background: white;
+        }
+        
+        body.dark-mode .search-box-small input:focus {
+            background: #4a5568;
+            border-color: #ff9800;
+        }
+        
+        /* Add Button */
+        .btn-add-small {
+            background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+            flex-shrink: 0;
+        }
+        
+        .btn-add-small:hover {
+            opacity: 0.95;
+        }
+        
+        /* Users List - Scrollable Area */
+        .compact-users-list {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-right: 5px;
+            width: 100%;
+            max-height: calc(100vh - 320px);
+        }
+        
+        .compact-users-list::-webkit-scrollbar {
+            width: 5px;
+        }
+        
+        .compact-users-list::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 5px;
+        }
+        
+        body.dark-mode .compact-users-list::-webkit-scrollbar-track {
+            background: #2d3748;
+        }
+        
+        .compact-users-list::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 5px;
+        }
+        
+        body.dark-mode .compact-users-list::-webkit-scrollbar-thumb {
+            background: #4a5568;
+        }
+        
+        /* User Card - Compact Design */
+        .user-item {
+            background: white;
+            border-radius: 10px;
+            padding: 8px 10px;
+            margin-bottom: 6px;
+            transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            position: relative;
+            width: 100%;
+            display: block;
+            min-height: auto;
+        }
+        
+        body.dark-mode .user-item {
+            background: var(--dark-card);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .user-item:hover {
+            background: #f8fafc;
+        }
+        
+        body.dark-mode .user-item:hover {
+            background: #2d3748;
+        }
+        
+        /* Remove left border */
+        .user-item.active,
+        .user-item.inactive,
+        .user-item.offline {
+            border-left: none;
+        }
+        
+        .user-header-small {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+        
+        .user-name-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+        }
+        
+        .user-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 12px;
+            flex-shrink: 0;
+            position: relative;
+        }
+        
+        /* Premium Badge */
+        .premium-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #8B4513;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8px;
+            font-weight: 900;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        body.dark-mode .premium-badge {
+            border-color: var(--dark-card);
+        }
+        
+        .user-name-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .user-name {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 13px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        body.dark-mode .user-name {
+            color: #e2e8f0;
+        }
+        
+        .user-status-small {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 9px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            flex-shrink: 0;
+            margin-left: 5px;
+        }
+        
+        /* Active Animation */
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7); }
+            70% { box-shadow: 0 0 0 5px rgba(74, 222, 128, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); }
+        }
+        
+        .status-active-small {
+            background: #dcfce7;
+            color: #16a34a;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-inactive-small {
+            background: #ffe0b2;
+            color: #ff9800;
+        }
+        
+        .status-offline-small {
+            background: #ffebee;
+            color: #ff4444;
+        }
+        
+        .user-details-small {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 6px;
+            font-size: 11px;
+            margin-bottom: 8px;
+        }
+        
+        .detail-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #64748b;
+        }
+        
+        body.dark-mode .detail-row {
+            color: #94a3b8;
+        }
+        
+        .detail-row i {
+            color: #ff9800;
+            font-size: 12px;
+            width: 14px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        
+        body.dark-mode .detail-row i {
+            color: #ff9800;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            color: #475569;
+            font-size: 11px;
+            flex-shrink: 0;
+            min-width: 90px;
+        }
+        
+        body.dark-mode .detail-label {
+            color: #e2e8f0;
+        }
+        
+        .detail-value {
+            font-weight: 500;
+            color: #1e293b;
+            font-size: 11px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        body.dark-mode .detail-value {
+            color: #e2e8f0;
+        }
+        
+        /* Progress Bar Styles */
+        .progress-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            margin-top: 4px;
+        }
+        
+        .progress-container {
+            flex: 1;
+            height: 6px;
+            background-color: #e2e8f0;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        body.dark-mode .progress-container {
+            background-color: #374151;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+        
+        .progress-text {
+            font-size: 10px;
+            font-weight: 600;
+            min-width: 50px;
+            text-align: right;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        /* Day Left Color Coding */
+        .days-green {
+            color: #16a34a !important;
+            font-weight: 700 !important;
+        }
+        
+        .days-yellow {
+            color: #ff9800 !important;
+            font-weight: 700 !important;
+        }
+        
+        .days-red {
+            color: #ff4444 !important;
+            font-weight: 700 !important;
+        }
+        
+        /* User Actions - Compact */
+        .user-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 6px;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 8px;
+        }
+        
+        body.dark-mode .user-actions {
+            border-top-color: #2d3748;
+        }
+        
+        .user-action-btn {
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            min-width: 55px;
+        }
+        
+        .user-action-btn.edit-btn {
+            background: #ffe0b2;
+            color: #e65100;
+        }
+        
+        body.dark-mode .user-action-btn.edit-btn {
+            background: #bf360c;
+            color: #ffe0b2;
+        }
+        
+        .user-action-btn.delete-btn {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        
+        body.dark-mode .user-action-btn.delete-btn {
+            background: #7f1d1d;
+            color: #fecaca;
+        }
+        
+        .user-action-btn.save-btn {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+        
+        body.dark-mode .user-action-btn.save-btn {
+            background: #065f46;
+            color: #a7f3d0;
+        }
+        
+        .user-action-btn:hover {
+            transform: translateY(-1px);
+        }
+        
+        /* Empty State */
+        .empty-state-small {
+            text-align: center;
+            padding: 30px 15px;
+            color: #94a3b8;
+        }
+        
+        .empty-state-small i {
+            font-size: 40px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+        
+        .empty-state-small h3 {
+            font-size: 16px;
+            color: #475569;
+            margin-bottom: 8px;
+        }
+        
+        body.dark-mode .empty-state-small h3 {
+            color: #e2e8f0;
+        }
+        
+        /* Form Modal */
+        .form-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            z-index: 1000;
+            backdrop-filter: blur(3px);
+        }
+        
+        .form-modal {
+            background: white;
+            border-radius: 15px;
+            width: 100%;
+            max-width: 400px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            animation: modalFade 0.3s ease-out;
+        }
+        
+        body.dark-mode .form-modal {
+            background: var(--dark-card);
+        }
+        
+        @keyframes modalFade {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .form-header-small {
+            background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .form-header-small h3 {
+            font-size: 18px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-close {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .form-body {
+            padding: 20px;
+        }
+        
+        .form-group-small {
+            margin-bottom: 16px;
+        }
+        
+        .form-group-small label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #475569;
+        }
+        
+        body.dark-mode .form-group-small label {
+            color: #e2e8f0;
+        }
+        
+        .form-input-small {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            background: #f8fafc;
+        }
+        
+        body.dark-mode .form-input-small {
+            background: #2d3748;
+            border-color: #4a5568;
+            color: white;
+        }
+        
+        .form-input-small:focus {
+            outline: none;
+            border-color: #ff9800;
+            background: white;
+        }
+        
+        body.dark-mode .form-input-small:focus {
+            background: #4a5568;
+            border-color: #ff9800;
+        }
+        
+        .form-checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 0;
+        }
+        
+        .form-checkbox-group label {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+        
+        .switch-group-small {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        body.dark-mode .switch-group-small {
+            background: #2d3748;
+            border-color: #4a5568;
+        }
+        
+        .switch-small {
+            position: relative;
+            display: inline-block;
+            width: 52px;
+            height: 28px;
+        }
+        
+        .switch-small input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider-small {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #cbd5e1;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .slider-small:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider-small {
+            background: linear-gradient(to right, #ff9800, #ff5722);
+        }
+        
+        input:checked + .slider-small:before {
+            transform: translateX(24px);
+        }
+        
+        .form-actions-small {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .btn-form-small {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-form-small:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn-add-form {
+            background: linear-gradient(to right, #ff9800, #ff5722);
+            color: white;
+        }
+        
+        .btn-update-form {
+            background: linear-gradient(to right, #ff9800, #ff5722);
+            color: white;
+        }
+        
+        .btn-delete-form {
+            background: linear-gradient(to right, #f87171, #ef4444);
+            color: white;
+        }
+        
+        /* Save Card Button */
+        .btn-save-card {
+            background: linear-gradient(to right, #ff9800, #ff5722);
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        .btn-save-card:hover {
+            transform: translateY(-2px);
+        }
+        
+        /* Alert Message Modal - NEW DESIGN */
+        .alert-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            z-index: 1002;
+            backdrop-filter: blur(3px);
+        }
+        
+        .alert-modal {
+            background: white;
+            border-radius: 15px;
+            width: 100%;
+            max-width: 380px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            animation: modalFade 0.3s ease-out;
+            border: 2px solid #ff9800;
+        }
+        
+        body.dark-mode .alert-modal {
+            background: var(--dark-card);
+            border-color: #ff9800;
+        }
+        
+        .alert-header {
+            background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .alert-header h3 {
+            font-size: 18px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .alert-body {
+            padding: 20px;
+        }
+        
+        /* Alert User Card Design - NEW SIMPLE DESIGN */
+        .alert-user-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 10px 0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            position: relative;
+        }
+        
+        body.dark-mode .alert-user-card {
+            background: #2d3748;
+        }
+        
+        .alert-user-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        body.dark-mode .alert-user-header {
+            border-bottom-color: #374151;
+        }
+        
+        .alert-user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 20px;
+            flex-shrink: 0;
+            position: relative;
+        }
+        
+        body.dark-mode .alert-user-avatar {
+            background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%);
+        }
+        
+        .alert-user-info {
+            flex: 1;
+        }
+        
+        .alert-user-name {
+            font-weight: 700;
+            font-size: 18px;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        body.dark-mode .alert-user-name {
+            color: #e2e8f0;
+        }
+        
+        .alert-user-status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            background: #ffe0b2;
+            color: #ff9800;
+            display: inline-block;
+            margin-top: 5px;
+        }
+        
+        body.dark-mode .alert-user-status {
+            background: #bf360c;
+            color: #ffe0b2;
+        }
+        
+        .alert-user-details {
+            margin-top: 15px;
+        }
+        
+        .alert-detail-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        
+        body.dark-mode .alert-detail-row {
+            border-bottom-color: #2d3748;
+        }
+        
+        .alert-detail-row:last-child {
+            border-bottom: none;
+        }
+        
+        .alert-detail-icon {
+            color: #ff9800;
+            font-size: 14px;
+            width: 20px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        
+        body.dark-mode .alert-detail-icon {
+            color: #ff9800;
+        }
+        
+        .alert-detail-content {
+            flex: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .alert-detail-label {
+            font-size: 13px;
+            color: #64748b;
+            font-weight: 500;
+        }
+        
+        body.dark-mode .alert-detail-label {
+            color: #94a3b8;
+        }
+        
+        .alert-detail-value {
+            font-size: 14px;
+            color: #1e293b;
+            font-weight: 600;
+        }
+        
+        body.dark-mode .alert-detail-value {
+            color: #e2e8f0;
+        }
+        
+        .alert-message {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 10px;
+            font-size: 14px;
+            color: #475569;
+            line-height: 1.5;
+        }
+        
+        body.dark-mode .alert-message {
+            background: #2d3748;
+            color: #cbd5e1;
+        }
+        
+        .alert-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .btn-save-alert {
+            background: linear-gradient(to right, #ff9800, #ff5722);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-save-alert:hover {
+            transform: translateY(-2px);
+            opacity: 0.9;
+        }
+        
+        .btn-close-alert {
+            background: linear-gradient(to right, #94a3b8, #64748b);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-close-alert:hover {
+            transform: translateY(-2px);
+            opacity: 0.9;
+        }
+        
+        /* Notification */
+        .notification-small {
+            position: fixed;
+            bottom: 20px;
+            right: 15px;
+            left: 15px;
+            padding: 15px 18px;
+            border-radius: 10px;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+            z-index: 1001;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.4s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            max-width: 350px;
+            margin: 0 auto;
+        }
+        
+        .notification-small.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .notification-small.success {
+            background: linear-gradient(to right, #4ade80, #22c55e);
+        }
+        
+        .notification-small.error {
+            background: linear-gradient(to right, #f87171, #ef4444);
+        }
+        
+        .notification-small.info {
+            background: linear-gradient(to right, #ff9800, #ff5722);
+        }
+        
+        /* Loading */
+        .loading-small {
+            text-align: center;
+            padding: 30px;
+            color: #94a3b8;
+        }
+        
+        .loading-spinner-small {
+            border: 3px solid #f1f5f9;
+            border-top: 3px solid #ff9800;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        body.dark-mode .loading-spinner-small {
+            border-color: #2d3748;
+            border-top-color: #ff9800;
+        }
+        
+        /* Footer */
+        .footer-small {
+            text-align: center;
+            padding: 15px;
+            color: #94a3b8;
+            font-size: 12px;
+            border-top: 1px solid #f1f5f9;
+            background: #f8fafc;
+            flex-shrink: 0;
+        }
+        
+        body.dark-mode .footer-small {
+            background: #1e1b4b;
+            border-top-color: #2d3748;
+            color: #a5b4cb;
+        }
+        
+        /* Demo Data Badge */
+        .demo-badge {
+            display: inline-block;
+            background: #ffe0b2;
+            color: #e65100;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-top: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        body.dark-mode .demo-badge {
+            background: #e65100;
+            color: #ffe0b2;
+        }
+        
+        /* Dark/Light Mode Toggle */
+        .theme-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%);
+            color: white;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            z-index: 999;
+            transition: all 0.3s;
+        }
+        
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+        
+        body.dark-mode .theme-toggle {
+            background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%);
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Mobile Optimizations */
+        @media (max-width: 480px) {
+            body {
+                padding: 8px;
+                background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%);
+            }
+            
+            body.dark-mode {
+                background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            }
+            
+            .container {
+                min-height: calc(100vh - 16px);
+                border-radius: 10px;
+            }
+            
+            .compact-header {
+                padding: 12px 12px 8px;
+            }
+            
+            .logo-img {
+                width: 36px;
+                height: 36px;
+            }
+            
+            .title-line {
+                font-size: 14px;
+            }
+            
+            .logout-btn, .install-btn {
+                padding: 6px 10px;
+                font-size: 11px;
+            }
+            
+            .stat-value-small {
+                font-size: 18px;
+            }
+            
+            .compact-stats {
+                gap: 10px;
+                margin: 12px 0 5px 0;
+            }
+            
+            .stat-item {
+                min-width: 55px;
+                padding: 6px 4px;
+            }
+            
+            .compact-content {
+                padding: 12px;
+            }
+            
+            .compact-users-list {
+                max-height: calc(100vh - 300px);
+            }
+            
+            .user-item {
+                padding: 6px 8px;
+                margin-bottom: 5px;
+            }
+            
+            .user-avatar {
+                width: 26px;
+                height: 26px;
+                font-size: 11px;
+            }
+            
+            .premium-badge {
+                width: 14px;
+                height: 14px;
+                font-size: 7px;
+                top: -3px;
+                right: -3px;
+            }
+            
+            .user-name {
+                font-size: 12px;
+            }
+            
+            .user-status-small {
+                padding: 2px 6px;
+                font-size: 8px;
+                min-width: 50px;
+            }
+            
+            .user-details-small {
+                gap: 4px;
+                font-size: 10px;
+                margin-bottom: 6px;
+            }
+            
+            .detail-row i {
+                font-size: 11px;
+                width: 12px;
+            }
+            
+            .detail-label {
+                font-size: 10px;
+                min-width: 80px;
+            }
+            
+            .detail-value {
+                font-size: 10px;
+            }
+            
+            .user-actions {
+                padding-top: 6px;
+                gap: 4px;
+            }
+            
+            .user-action-btn {
+                padding: 3px 6px;
+                font-size: 9px;
+                min-width: 50px;
+            }
+            
+            .btn-add-small {
+                padding: 10px;
+                font-size: 13px;
+            }
+            
+            .android-guide {
+                max-width: 340px;
+            }
+            
+            .progress-row {
+                padding-left: 0;
+            }
+            
+            .progress-text {
+                font-size: 9px;
+                min-width: 45px;
+            }
+            
+            .alert-modal {
+                max-width: 320px;
+            }
+            
+            .alert-user-avatar {
+                width: 45px;
+                height: 45px;
+                font-size: 18px;
+            }
+            
+            .alert-user-name {
+                font-size: 16px;
+            }
+            
+            .alert-detail-label {
+                font-size: 12px;
+            }
+            
+            .alert-detail-value {
+                font-size: 13px;
+            }
+            
+            .alert-message {
+                font-size: 13px;
+                padding: 12px;
+            }
+            
+            .btn-save-alert, .btn-close-alert {
+                padding: 10px;
+                font-size: 13px;
+            }
+        }
+        
+        @media (min-width: 768px) {
+            .container {
+                max-width: 500px;
+                margin: 20px auto;
+            }
+            
+            .compact-users-list {
+                max-height: calc(100vh - 350px);
+            }
+            
+            .notification-small {
+                right: 20px;
+                left: auto;
+                max-width: 320px;
+            }
+        }
     </style>
 </head>
 <body>
-
-    <div class="admin-header">
-        <div class="header-top">
-            <div class="app-info">
-                <div class="logo-box"><i class="fab fa-youtube"></i></div>
-                <div>
-                    <div style="font-weight: bold; font-size: 18px;">YT PLUS ADMIN</div>
-                    <div style="font-size: 11px; opacity: 0.8;">Manage VIP Users</div>
-                </div>
+    <!-- Login Overlay -->
+    <div class="login-overlay" id="loginOverlay">
+        <div class="login-box">
+            <div class="login-logo">
+                <img src="https://raw.githubusercontent.com/JVPNSHOP/JKVIPUDP/main/admin.png" alt="JK VIP Logo">
             </div>
-            <i class="fas fa-sign-out-alt"></i>
-        </div>
-
-        <div class="stats-container">
-            <div class="stat-card" onclick="filterByStatus('all')">
-                <span class="stat-num" id="stat-all">0</span>
-                <span class="stat-label">ALL</span>
-            </div>
-            <div class="stat-card" style="color: #4ade80;" onclick="filterByStatus('active')">
-                <span class="stat-num" id="stat-active">0</span>
-                <span class="stat-label">ACTIVE</span>
-            </div>
-            <div class="stat-card" style="color: #facc15;" onclick="filterByStatus('inactive')">
-                <span class="stat-num" id="stat-inactive">0</span>
-                <span class="stat-label">INACTIVE</span>
-            </div>
-            <div class="stat-card" style="color: #f87171;" onclick="filterByStatus('offline')">
-                <span class="stat-num" id="stat-offline">0</span>
-                <span class="stat-label">OFFLINE</span>
-            </div>
-        </div>
-        <div style="text-align: center; font-size: 12px; opacity: 0.7;">Power By : Jue Htet</div>
-    </div>
-
-    <div class="main-content">
-        <div class="search-box">
-            <i class="fas fa-search" style="color: #94a3b8;"></i>
-            <input type="text" id="searchInput" placeholder="Search users..." onkeyup="filterUsers()">
-        </div>
-
-        <button class="btn-add-main" onclick="openModal()">
-            <i class="fas fa-plus-circle"></i> Add New User
-        </button>
-
-        <div id="userList">
-            </div>
-    </div>
-
-    <div class="modal" id="userModal">
-        <div class="modal-content">
-            <h3 style="margin-top: 0; color: var(--primary-dark);"><i class="fas fa-user-plus"></i> User Data</h3>
-            <div class="form-group">
-                <label>Token ID</label>
-                <input type="text" id="f-id" placeholder="Paste Token ID">
-            </div>
-            <div class="form-group">
-                <label>Username</label>
-                <input type="text" id="f-name" placeholder="User Name">
-            </div>
-            <div class="form-group">
-                <label>Expired Date</label>
-                <input type="date" id="f-exp">
-            </div>
-            <div class="form-group">
-                <label>Price (฿)</label>
-                <input type="number" id="f-price" placeholder="50">
-            </div>
-            <div class="form-group">
-                <label>Status</label>
-                <select id="f-status" style="width:100%; padding:10px; border-radius:8px; border:1px solid #e2e8f0;">
-                    <option value="true">Active</option>
-                    <option value="false">Offline</option>
-                </select>
-            </div>
-            <div style="display: flex; gap: 10px; margin-top: 20px;">
-                <button onclick="saveUser()" style="flex:1; padding:12px; background:var(--primary); color:white; border:none; border-radius:8px; font-weight:bold;">SAVE DATA</button>
-                <button onclick="closeModal()" style="flex:1; padding:12px; background:#e2e8f0; border:none; border-radius:8px;">CANCEL</button>
-            </div>
-        </div>
-    </div>
-
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, doc, setDoc, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-    const firebaseConfig = {
-        apiKey: "AIzaSyDGCsxM1ccZ_ZswwNPZDI-ykOm5yJU1CIw",
-        authDomain: "yt-plus-f2adb.firebaseapp.com",
-        projectId: "yt-plus-f2adb",
-        storageBucket: "yt-plus-f2adb.appspot.com",
-        messagingSenderId: "395214377046",
-        appId: "1:395214377046:android:86e632965381ea0d7d6bf7"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const usersCol = collection(db, "users");
-    let allUsersData = [];
-
-    onSnapshot(usersCol, (snap) => {
-        allUsersData = [];
-        let active = 0, offline = 0, inactive = 0;
-        const today = new Date();
-
-        snap.forEach(d => {
-            const data = { id: d.id, ...d.data() };
-            allUsersData.push(data);
+            <h1 class="login-title">JK VIP ADMIN</h1>
+            <p class="login-subtitle">Enter your credentials to access the panel</p>
             
-            const expDate = new Date(data.expiryDate);
-            const isExpired = expDate < today;
-
-            if(isExpired) {
-                inactive++;
-            } else if(data.isActive) {
-                active++;
-            } else {
-                offline++;
-            }
-        });
-        document.getElementById('stat-all').innerText = allUsersData.length;
-        document.getElementById('stat-active').innerText = active;
-        document.getElementById('stat-inactive').innerText = inactive;
-        document.getElementById('stat-offline').innerText = offline;
-        renderUsers(allUsersData);
-    });
-
-    // Filter by Status Function
-    window.filterByStatus = (status) => {
-        const today = new Date();
-        let filtered = [];
-
-        // UI highlight for selection
-        document.querySelectorAll('.stat-card').forEach(card => card.classList.remove('active-filter'));
-        
-        if(status === 'all') {
-            filtered = allUsersData;
-        } else if(status === 'active') {
-            filtered = allUsersData.filter(u => u.isActive && new Date(u.expiryDate) >= today);
-        } else if(status === 'inactive') {
-            filtered = allUsersData.filter(u => new Date(u.expiryDate) < today);
-        } else if(status === 'offline') {
-            filtered = allUsersData.filter(u => !u.isActive && new Date(u.expiryDate) >= today);
-        }
-
-        renderUsers(filtered);
-    };
-
-    window.renderUsers = (data) => {
-        const list = document.getElementById('userList');
-        list.innerHTML = "";
-        data.forEach(user => {
-            const exp = new Date(user.expiryDate);
-            const remain = Math.ceil((exp - new Date()) / (1000 * 60 * 60 * 24));
-            const days = remain > 0 ? remain : 0;
-            const percent = Math.min(100, Math.max(3, (days / 30) * 100));
+            <div class="login-input-group">
+                <label for="loginUsername">Username</label>
+                <input type="text" id="loginUsername" class="login-input" placeholder="Enter username">
+            </div>
             
-            const isExpired = remain <= 0;
-
-            const card = document.createElement('div');
-            card.className = 'user-card';
-            card.innerHTML = `
-                <div class="card-header">
-                    <div class="user-profile">
-                        <div class="avatar">${(user.username || "U").charAt(0).toUpperCase()}</div>
-                        <div style="font-weight: bold; color: #1e293b;">${user.username} 👑</div>
+            <div class="login-input-group">
+                <label for="loginPassword">Password</label>
+                <input type="password" id="loginPassword" class="login-input" placeholder="Enter password">
+            </div>
+            
+            <div class="login-error" id="loginError"></div>
+            
+            <button class="login-btn" id="loginBtn">
+                <i class="fas fa-sign-in-alt"></i>
+                Login
+            </button>
+            
+            <div class="demo-badge" style="margin-top: 20px; font-size: 12px;">
+                <i class="fas fa-mobile-alt"></i> Add to Home Screen for better experience
+            </div>
+        </div>
+    </div>
+    
+    <!-- Android Guide Overlay -->
+    <div class="android-guide-overlay" id="androidGuideOverlay">
+        <div class="android-guide">
+            <div class="android-guide-header">
+                <h3><i class="fas fa-android"></i> Android PWA Installation Guide</h3>
+                <p>Follow these steps after installation</p>
+            </div>
+            <div class="android-guide-body">
+                <div class="android-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h4>Check Home Screen</h4>
+                        <p>Look for "JK VIP Admin" icon on your Home Screen</p>
                     </div>
-                    <span class="status-badge" style="background:${isExpired ? '#fef3c7' : (user.isActive ? '#dcfce7':'#fee2e2')}; color:${isExpired ? '#92400e' : (user.isActive ? '#166534':'#991b1b')}">
-                        ${isExpired ? 'INACTIVE' : (user.isActive ? 'ACTIVE' : 'OFFLINE')}
-                    </span>
                 </div>
-                <div class="info-grid"><i class="fas fa-key"></i> <span class="info-label">Token ID:</span> <span class="info-value">${user.id}</span></div>
-                <div class="info-grid"><i class="fas fa-calendar-alt"></i> <span class="info-label">Expired Date:</span> <span class="info-value">${user.expiryDate}</span></div>
-                <div class="info-grid"><i class="fas fa-coins"></i> <span class="info-label">Price:</span> <span class="info-value" style="color:var(--primary)">${user.price} ฿</span></div>
-                <div class="info-grid"><i class="fas fa-clock"></i> <span class="info-label">Remaining Days:</span> <span class="info-value" style="color:${days < 3 ? 'red':'#10b981'}">${days} days</span></div>
+                <div class="android-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h4>Search in App Drawer</h4>
+                        <p>Open App Drawer and search for "JK VIP Admin"</p>
+                    </div>
+                </div>
+                <div class="android-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h4>Check Chrome Apps</h4>
+                        <p>Go to Chrome Menu → "Apps" → "JK VIP Admin"</p>
+                    </div>
+                </div>
+                <div class="android-step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h4>Reinstall if needed</h4>
+                        <p>If not found, try installing again from Chrome menu</p>
+                    </div>
+                </div>
+            </div>
+            <div class="android-guide-footer">
+                <button class="btn-android-check" id="checkAndroidInstall">
+                    <i class="fas fa-search"></i>
+                    Check Installation
+                </button>
+                <button class="btn-android-check" id="closeAndroidGuide" style="background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%); margin-top: 10px;">
+                    <i class="fas fa-times"></i>
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Alert Message Modal - NEW DESIGN -->
+    <div class="alert-overlay" id="alertOverlay">
+        <div class="alert-modal">
+            <div class="alert-header">
+                <h3 id="alertTitle"><i class="fas fa-user-check"></i> User Added Successfully</h3>
+            </div>
+            <div class="alert-body">
+                <div class="alert-user-card" id="alertUserCard">
+                    <!-- Alert user card content will be generated dynamically -->
+                </div>
+                <div class="alert-message">
+                    🙏🏿 အားပေးမှုအတွက်ကျေးဇူးတင်ပါတယ်ခင်ဗျ 🙏🏿
+                </div>
+                <div class="alert-actions">
+                    <button class="btn-save-alert" id="saveAlertImage">
+                        <i class="fas fa-download"></i>
+                        Save Image
+                    </button>
+                    <button class="btn-close-alert" id="closeAlert">
+                        <i class="fas fa-times"></i>
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Container (Initially Hidden) -->
+    <div class="container" id="mainContainer" style="display: none;">
+        <!-- Header -->
+        <div class="compact-header">
+            <div class="header-top">
+                <div class="logo-container">
+                    <div class="logo-img">
+                        <img src="https://raw.githubusercontent.com/JVPNSHOP/JKVIPUDP/main/admin.png" alt="JK VIP Logo">
+                    </div>
+                    <div class="title-lines">
+                        <div class="title-line">JK VIP ADMIN</div>
+                        <div class="subtitle-small">Manage VIP Users</div>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <button class="install-btn" id="installBtnHeader" style="display: none;">
+                        <i class="fas fa-download"></i>
+                        Install App
+                    </button>
+                    <button class="logout-btn" id="logoutBtn">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Stats - Clickable -->
+            <div class="compact-stats">
+                <div class="stat-item total-stat" id="filterAll">
+                    <div class="stat-value-small" id="totalUsers">5</div>
+                    <div class="stat-label-small">All</div>
+                </div>
+                <div class="stat-item active-stat" id="filterActive">
+                    <div class="stat-value-small" id="activeUsers">5</div>
+                    <div class="stat-label-small">Active</div>
+                </div>
+                <div class="stat-item inactive-stat" id="filterInactive">
+                    <div class="stat-value-small" id="inactiveUsers">0</div>
+                    <div class="stat-label-small">Inactive</div>
+                </div>
+                <div class="stat-item offline-stat" id="filterOffline">
+                    <div class="stat-value-small" id="offlineUsers">0</div>
+                    <div class="stat-label-small">Offline</div>
+                </div>
+            </div>
+            <div class="demo-badge">Power By : Jue Htet</div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="compact-content">
+            <!-- Search and Add Button Container -->
+            <div class="search-add-container">
+                <div class="search-box-small">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Search users...">
+                </div>
+                <button class="btn-add-small" id="openForm">
+                    <i class="fas fa-plus-circle"></i>
+                    Add New User
+                </button>
+            </div>
+            
+            <!-- Users List -->
+            <div class="compact-users-list" id="usersList">
+                <div class="loading-small">
+                    <div class="loading-spinner-small"></div>
+                    <p>Loading users...</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer-small">
+            <p>JK VIP System • Firebase Firestore</p>
+        </div>
+    </div>
+    
+    <!-- Form Modal -->
+    <div class="form-overlay" id="formOverlay">
+        <div class="form-modal">
+            <div class="form-header-small">
+                <h3><i class="fas fa-user-edit"></i> User Form</h3>
+                <button class="btn-close" id="closeForm">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="form-body">
+                <div class="form-group-small">
+                    <label for="token">Token ID *</label>
+                    <input type="text" id="token" class="form-input-small" placeholder="Enter unique token">
+                </div>
+                <div class="form-group-small">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" class="form-input-small" placeholder="Enter username">
+                </div>
+                <div class="form-group-small">
+                    <label for="expiry">Expired Date</label>
+                    <input type="date" id="expiry" class="form-input-small">
+                </div>
+                <div class="form-group-small">
+                    <div class="switch-group-small">
+                        <span>Active Status</span>
+                        <label class="switch-small">
+                            <input type="checkbox" id="isActive" checked>
+                            <span class="slider-small"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group-small">
+                    <div class="form-checkbox-group">
+                        <label>
+                            <input type="checkbox" id="isPremium" checked>
+                            <span>Premium User</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="form-actions-small">
+                    <button class="btn-form-small btn-add-form" id="btnAdd">
+                        <i class="fas fa-plus"></i>
+                        Add
+                    </button>
+                    <button class="btn-form-small btn-update-form" id="btnUpdate">
+                        <i class="fas fa-sync"></i>
+                        Update
+                    </button>
+                    <button class="btn-form-small btn-delete-form" id="btnDelete">
+                        <i class="fas fa-trash"></i>
+                        Delete
+                    </button>
+                </div>
+                <button class="btn-save-card" id="btnSaveCard">
+                    <i class="fas fa-download"></i>
+                    Save Card as Image
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Dark/Light Mode Toggle -->
+    <button class="theme-toggle" id="themeToggle">
+        <i class="fas fa-moon"></i>
+    </button>
+    
+    <!-- Notification -->
+    <div class="notification-small" id="notification"></div>
+    
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDGCsxM1ccZ_ZswwNPZDI-ykOm5yJU1CIw",
+            authDomain: "yt-plus-f2adb.firebaseapp.com",
+            projectId: "yt-plus-f2adb",
+            storageBucket: "yt-plus-f2adb.appspot.com",
+            messagingSenderId: "395214377046",
+            appId: "1:395214377046:android:86e632965381ea0d7d6bf7"
+        };
+        
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        
+        // Global variables
+        let allUsers = [];
+        let filteredUsers = [];
+        let currentEditToken = null;
+        let currentFilter = 'all';
+        let currentEditUser = null;
+        let isLoggedIn = false;
+        let isDarkMode = false;
+        let deferredPrompt = null;
+        let installPromptShown = false;
+        let lastAddedUser = null; // Track last added/updated user
+        
+        // DOM Elements
+        const loginOverlay = document.getElementById('loginOverlay');
+        const mainContainer = document.getElementById('mainContainer');
+        const loginBtn = document.getElementById('loginBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const loginUsername = document.getElementById('loginUsername');
+        const loginPassword = document.getElementById('loginPassword');
+        const loginError = document.getElementById('loginError');
+        const themeToggle = document.getElementById('themeToggle');
+        const installBtnHeader = document.getElementById('installBtnHeader');
+        const androidGuideOverlay = document.getElementById('androidGuideOverlay');
+        const checkAndroidInstall = document.getElementById('checkAndroidInstall');
+        const closeAndroidGuide = document.getElementById('closeAndroidGuide');
+        
+        // Alert Modal Elements - NEW
+        const alertOverlay = document.getElementById('alertOverlay');
+        const alertTitle = document.getElementById('alertTitle');
+        const alertUserCard = document.getElementById('alertUserCard');
+        const saveAlertImage = document.getElementById('saveAlertImage');
+        const closeAlert = document.getElementById('closeAlert');
+        
+        const formOverlay = document.getElementById('formOverlay');
+        const openFormBtn = document.getElementById('openForm');
+        const closeFormBtn = document.getElementById('closeForm');
+        const searchInput = document.getElementById('searchInput');
+        const usersList = document.getElementById('usersList');
+        const notification = document.getElementById('notification');
+        
+        // Form elements
+        const tokenInput = document.getElementById('token');
+        const usernameInput = document.getElementById('username');
+        const expiryInput = document.getElementById('expiry');
+        const isActiveInput = document.getElementById('isActive');
+        const isPremiumInput = document.getElementById('isPremium');
+        const btnAdd = document.getElementById('btnAdd');
+        const btnUpdate = document.getElementById('btnUpdate');
+        const btnDelete = document.getElementById('btnDelete');
+        const btnSaveCard = document.getElementById('btnSaveCard');
+        
+        // Stats elements
+        const totalUsersEl = document.getElementById('totalUsers');
+        const activeUsersEl = document.getElementById('activeUsers');
+        const inactiveUsersEl = document.getElementById('inactiveUsers');
+        const offlineUsersEl = document.getElementById('offlineUsers');
+        
+        // Filter elements
+        const filterAll = document.getElementById('filterAll');
+        const filterActive = document.getElementById('filterActive');
+        const filterInactive = document.getElementById('filterInactive');
+        const filterOffline = document.getElementById('filterOffline');
+        
+        // Demo data with premium status
+        let demoUsers = [
+            { token: "014f1b585e6682b3", username: "e3lococ", expiryDate: "2026-02-04", isActive: true, isPremium: true },
+            { token: "root", username: "root", expiryDate: "2026-04-21", isActive: true, isPremium: false },
+            { token: "null", username: "null", expiryDate: "2026-04-20", isActive: true, isPremium: true },
+            { token: "null", username: "root", expiryDate: "2026-02-26", isActive: true, isPremium: false },
+            { token: "inactive_user", username: "Unknow", expiryDate: "Expired", isActive: false, isPremium: true }
+        ];
+        
+        // Detect Android Chrome
+        function isAndroidChrome() {
+            const userAgent = navigator.userAgent;
+            return /Android/i.test(userAgent) && /Chrome/i.test(userAgent);
+        }
+        
+        // Check if app is already installed as PWA
+        function checkIfAppInstalled() {
+            // Method 1: Check display mode
+            if (window.matchMedia('(display-mode: standalone)').matches) {
+                return true;
+            }
+            
+            // Method 2: Check if running in standalone mode
+            if (window.navigator.standalone) {
+                return true;
+            }
+            
+            // Method 3: Check for PWA specific APIs
+            if ('standalone' in window.navigator && window.navigator.standalone) {
+                return true;
+            }
+            
+            return false;
+        }
+        
+        // Show Android installation guide
+        function showAndroidGuide() {
+            androidGuideOverlay.style.display = 'flex';
+        }
+        
+        // Register Service Worker with better caching
+        function registerServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                // Create a more robust service worker
+                const swCode = `
+                    const CACHE_NAME = 'jk-vip-admin-v3.0';
+                    
+                    // Install event
+                    self.addEventListener('install', event => {
+                        console.log('✅ Service Worker installing...');
+                        event.waitUntil(
+                            caches.open(CACHE_NAME)
+                                .then(cache => {
+                                    // Cache the current page
+                                    return cache.addAll([
+                                        './',
+                                        'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
+                                        'https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js',
+                                        'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js',
+                                        'https://html2canvas.hertzen.com/dist/html2canvas.min.js',
+                                        'https://raw.githubusercontent.com/JVPNSHOP/JKVIPUDP/main/admin.png'
+                                    ]);
+                                })
+                                .then(() => self.skipWaiting())
+                        );
+                    });
+                    
+                    // Activate event
+                    self.addEventListener('activate', event => {
+                        console.log('✅ Service Worker activating...');
+                        event.waitUntil(
+                            caches.keys().then(cacheNames => {
+                                return Promise.all(
+                                    cacheNames.map(cacheName => {
+                                        if (cacheName !== CACHE_NAME) {
+                                            console.log('Deleting old cache:', cacheName);
+                                            return caches.delete(cacheName);
+                                        }
+                                    })
+                                );
+                            }).then(() => self.clients.claim())
+                        );
+                    });
+                    
+                    // Fetch event with network-first strategy
+                    self.addEventListener('fetch', event => {
+                        event.respondWith(
+                            fetch(event.request)
+                                .then(response => {
+                                    // Cache the response if it's a GET request and successful
+                                    if (event.request.method === 'GET' && response.status === 200) {
+                                        const responseClone = response.clone();
+                                        caches.open(CACHE_NAME)
+                                            .then(cache => {
+                                                cache.put(event.request, responseClone);
+                                            });
+                                    }
+                                    return response;
+                                })
+                                .catch(() => {
+                                    // If network fails, try cache
+                                    return caches.match(event.request)
+                                        .then(cachedResponse => {
+                                            return cachedResponse || new Response('Offline', {
+                                                status: 503,
+                                                statusText: 'Service Unavailable'
+                                            });
+                                        });
+                                })
+                        );
+                    });
+                    
+                    // Handle messages from main thread
+                    self.addEventListener('message', event => {
+                        if (event.data && event.data.type === 'SKIP_WAITING') {
+                            self.skipWaiting();
+                        }
+                    });
+                `;
                 
-                <div class="progress-container">
-                    <div class="progress-bar"><div class="progress-fill" style="width: ${percent}%; background: ${days < 3 ? '#f43f5e':'#2a9d8f'}"></div></div>
-                    <div style="text-align:right; font-size:10px; color:#94a3b8;"><i class="fas fa-chart-line"></i> ${Math.floor(percent)}%</div>
+                // Create blob URL for service worker
+                const blob = new Blob([swCode], { type: 'application/javascript' });
+                const swUrl = URL.createObjectURL(blob);
+                
+                // Register service worker
+                navigator.serviceWorker.register(swUrl, { scope: './' })
+                    .then(registration => {
+                        console.log('✅ Service Worker registered:', registration.scope);
+                        
+                        // Force update
+                        registration.update();
+                        
+                        // Check if service worker is controlling the page
+                        if (registration.active) {
+                            console.log('Service Worker is active and controlling the page');
+                        }
+                    })
+                    .catch(error => {
+                        console.log('❌ Service Worker registration failed:', error);
+                    });
+            }
+        }
+        
+        // NEW: Show Alert Modal with user details - SIMPLE DESIGN
+        function showAlertModal(user, action) {
+            // Set alert title
+            if (action === 'add') {
+                alertTitle.innerHTML = '<i class="fas fa-user-plus"></i> User Added Successfully';
+            } else if (action === 'update') {
+                alertTitle.innerHTML = '<i class="fas fa-user-check"></i> User Updated Successfully';
+            }
+            
+            // Calculate days left and status
+            const status = getUserStatus(user);
+            const daysInfo = getDaysLeftInfo(user);
+            
+            // Determine status color and text
+            let statusColor = '#16a34a'; // Default green for active
+            let statusText = 'Active';
+            let statusBg = '#dcfce7';
+            
+            if (status === 'inactive') {
+                statusColor = '#ff9800';
+                statusText = 'Inactive';
+                statusBg = '#ffe0b2';
+            } else if (status === 'offline') {
+                statusColor = '#ff4444';
+                statusText = 'Offline';
+                statusBg = '#ffebee';
+            }
+            
+            // Create user card HTML for alert - NEW SIMPLE DESIGN
+            const alertCardHTML = `
+                <div class="alert-user-header">
+                    <div class="alert-user-avatar">
+                        ${(user.username || user.token).charAt(0).toUpperCase()}
+                        ${user.isPremium ? '<div class="premium-badge"><i class="fas fa-crown"></i></div>' : ''}
+                    </div>
+                    <div class="alert-user-info">
+                        <div class="alert-user-name">
+                            ${user.username || user.token}
+                            ${user.isPremium ? '<i class="fas fa-crown" style="color:#FFD700;"></i>' : ''}
+                        </div>
+                        <div class="alert-user-status" style="background-color: ${statusBg}; color: ${statusColor};">
+                            ${statusText.toUpperCase()}
+                        </div>
+                    </div>
                 </div>
-
-                <div class="card-actions">
-                    <button class="action-btn" style="background:#f1f5f9;" onclick="editUser('${user.id}')"><i class="fas fa-edit"></i> Edit</button>
-                    <button class="action-btn" style="background:#fee2e2; color:#ef4444;" onclick="deleteUser('${user.id}')"><i class="fas fa-trash"></i> Delete</button>
-                    <button class="action-btn" style="background:#dcfce7; color:#166534;" onclick="saveImage(this)"><i class="fas fa-save"></i> Save</button>
+                <div class="alert-user-details">
+                    <div class="alert-detail-row">
+                        <div class="alert-detail-icon">
+                            <i class="fas fa-key"></i>
+                        </div>
+                        <div class="alert-detail-content">
+                            <div class="alert-detail-label">Token ID</div>
+                            <div class="alert-detail-value">${user.token}</div>
+                        </div>
+                    </div>
+                    <div class="alert-detail-row">
+                        <div class="alert-detail-icon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="alert-detail-content">
+                            <div class="alert-detail-label">Username</div>
+                            <div class="alert-detail-value">${user.username || user.token}</div>
+                        </div>
+                    </div>
+                    <div class="alert-detail-row">
+                        <div class="alert-detail-icon">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <div class="alert-detail-content">
+                            <div class="alert-detail-label">Expiry Date</div>
+                            <div class="alert-detail-value">${user.expiryDate || 'No date'}</div>
+                        </div>
+                    </div>
+                    <div class="alert-detail-row">
+                        <div class="alert-detail-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="alert-detail-content">
+                            <div class="alert-detail-label">Remaining Days</div>
+                            <div class="alert-detail-value" style="color: ${daysInfo.color}; font-weight: 700;">${daysInfo.days}</div>
+                        </div>
+                    </div>
+                    <div class="alert-detail-row">
+                        <div class="alert-detail-icon">
+                            <i class="fas fa-circle"></i>
+                        </div>
+                        <div class="alert-detail-content">
+                            <div class="alert-detail-label">Status</div>
+                            <div class="alert-detail-value" style="color: ${statusColor}; font-weight: 700;">${statusText}</div>
+                        </div>
+                    </div>
                 </div>
             `;
-            list.appendChild(card);
+            
+            alertUserCard.innerHTML = alertCardHTML;
+            alertOverlay.style.display = 'flex';
+            
+            // Store the user for saving as image
+            lastAddedUser = user;
+        }
+        
+        // NEW: Save only the alert card as image (without buttons)
+        function saveAlertAsImage() {
+            if (!lastAddedUser) {
+                showNotification("❌ No user data found", "error");
+                return;
+            }
+            
+            console.log("Saving alert card for user:", lastAddedUser);
+            
+            // Create a clone of the alert card without the buttons
+            const alertCardClone = document.createElement('div');
+            alertCardClone.className = 'alert-user-card';
+            alertCardClone.style.margin = '0';
+            alertCardClone.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
+            alertCardClone.style.width = '320px';
+            alertCardClone.style.border = '2px solid #ff9800';
+            alertCardClone.style.borderRadius = '12px';
+            alertCardClone.style.backgroundColor = 'white';
+            
+            // Calculate days left and status
+            const status = getUserStatus(lastAddedUser);
+            const daysInfo = getDaysLeftInfo(lastAddedUser);
+            
+            // Determine status color and text
+            let statusColor = '#16a34a';
+            let statusText = 'Active';
+            let statusBg = '#dcfce7';
+            
+            if (status === 'inactive') {
+                statusColor = '#ff9800';
+                statusText = 'Inactive';
+                statusBg = '#ffe0b2';
+            } else if (status === 'offline') {
+                statusColor = '#ff4444';
+                statusText = 'Offline';
+                statusBg = '#ffebee';
+            }
+            
+            // Create the card content
+            alertCardClone.innerHTML = `
+                <div style="position: relative; padding: 20px;">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #e2e8f0;">
+                        <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 20px; position: relative;">
+                            ${(lastAddedUser.username || lastAddedUser.token).charAt(0).toUpperCase()}
+                            ${lastAddedUser.isPremium ? '<div style="position: absolute; top: -4px; right: -4px; background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); color: #8B4513; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 900; border: 2px solid white;"><i class="fas fa-crown"></i></div>' : ''}
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 700; font-size: 18px; color: #1e293b; display: flex; align-items: center; gap: 6px;">
+                                ${lastAddedUser.username || lastAddedUser.token}
+                                ${lastAddedUser.isPremium ? '<i class="fas fa-crown" style="color:#FFD700;"></i>' : ''}
+                            </div>
+                            <div style="padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; background: ${statusBg}; color: ${statusColor}; display: inline-block; margin-top: 5px;">
+                                ${statusText.toUpperCase()}
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <div style="display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #f1f5f9;">
+                            <div style="color: #ff9800; font-size: 14px; width: 20px; text-align: center;">
+                                <i class="fas fa-key"></i>
+                            </div>
+                            <div style="flex: 1; display: flex; justify-content: space-between; align-items: center;">
+                                <div style="font-size: 13px; color: #64748b; font-weight: 500;">Token ID</div>
+                                <div style="font-size: 14px; color: #1e293b; font-weight: 600;">${lastAddedUser.token}</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #f1f5f9;">
+                            <div style="color: #ff9800; font-size: 14px; width: 20px; text-align: center;">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div style="flex: 1; display: flex; justify-content: space-between; align-items: center;">
+                                <div style="font-size: 13px; color: #64748b; font-weight: 500;">Username</div>
+                                <div style="font-size: 14px; color: #1e293b; font-weight: 600;">${lastAddedUser.username || lastAddedUser.token}</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #f1f5f9;">
+                            <div style="color: #ff9800; font-size: 14px; width: 20px; text-align: center;">
+                                <i class="fas fa-calendar-alt"></i>
+                            </div>
+                            <div style="flex: 1; display: flex; justify-content: space-between; align-items: center;">
+                                <div style="font-size: 13px; color: #64748b; font-weight: 500;">Expiry Date</div>
+                                <div style="font-size: 14px; color: #1e293b; font-weight: 600;">${lastAddedUser.expiryDate || 'No date'}</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #f1f5f9;">
+                            <div style="color: #ff9800; font-size: 14px; width: 20px; text-align: center;">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div style="flex: 1; display: flex; justify-content: space-between; align-items: center;">
+                                <div style="font-size: 13px; color: #64748b; font-weight: 500;">Remaining Days</div>
+                                <div style="font-size: 14px; color: ${daysInfo.color}; font-weight: 700;">${daysInfo.days}</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px; padding: 8px 0;">
+                            <div style="color: #ff9800; font-size: 14px; width: 20px; text-align: center;">
+                                <i class="fas fa-circle"></i>
+                            </div>
+                            <div style="flex: 1; display: flex; justify-content: space-between; align-items: center;">
+                                <div style="font-size: 13px; color: #64748b; font-weight: 500;">Status</div>
+                                <div style="font-size: 14px; color: ${statusColor}; font-weight: 700;">${statusText}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="text-align: center; margin-top: 20px; padding: 15px; background: #f8fafc; border-radius: 10px; font-size: 14px; color: #475569; line-height: 1.5;">
+                        🙏🏿 အားပေးမှုအတွက်ကျေးဇူးတင်ပါတယ်ခင်ဗျ 🙏🏿
+                    </div>
+                </div>
+            `;
+            
+            // Add to body for capturing
+            document.body.appendChild(alertCardClone);
+            
+            // Capture with html2canvas
+            html2canvas(alertCardClone, {
+                scale: 2,
+                backgroundColor: '#ffffff',
+                useCORS: true,
+                logging: true,
+                allowTaint: true
+            }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const link = document.createElement('a');
+                link.download = `JK_VIP_${lastAddedUser.token}_${new Date().getTime()}.png`;
+                link.href = imgData;
+                
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                // Remove the clone
+                document.body.removeChild(alertCardClone);
+                
+                showNotification("✅ Alert card saved as image", "success");
+            }).catch(error => {
+                console.error('Error saving alert card:', error);
+                showNotification("❌ Error saving image: " + error.message, "error");
+                // Remove the clone if error
+                if (alertCardClone.parentNode) {
+                    document.body.removeChild(alertCardClone);
+                }
+            });
+        }
+        
+        // Close alert modal
+        function closeAlertModal() {
+            alertOverlay.style.display = 'none';
+            lastAddedUser = null;
+        }
+        
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            // Register Service Worker
+            registerServiceWorker();
+            
+            // Check if user is already logged in
+            const savedLogin = localStorage.getItem('jkvip_loggedin');
+            if (savedLogin === 'true') {
+                isLoggedIn = true;
+                loginOverlay.style.display = 'none';
+                mainContainer.style.display = 'flex';
+                showInstallButton();
+            }
+            
+            // Check dark mode preference
+            const savedDarkMode = localStorage.getItem('jkvip_darkmode');
+            if (savedDarkMode === 'true') {
+                enableDarkMode();
+            }
+            
+            // Alert modal event listeners
+            saveAlertImage.addEventListener('click', saveAlertAsImage);
+            closeAlert.addEventListener('click', closeAlertModal);
+            
+            // Android guide buttons
+            checkAndroidInstall.addEventListener('click', () => {
+                if (isAndroidChrome()) {
+                    // Check if app is installed
+                    if (checkIfAppInstalled()) {
+                        showNotification("✅ App is installed! Check Home Screen", "success");
+                    } else {
+                        showNotification("🔍 Search for 'JK VIP Admin' in App Drawer", "info");
+                    }
+                }
+            });
+            
+            closeAndroidGuide.addEventListener('click', () => {
+                androidGuideOverlay.style.display = 'none';
+            });
+            
+            // Login event
+            loginBtn.addEventListener('click', handleLogin);
+            loginPassword.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') handleLogin();
+            });
+            
+            // Logout event
+            logoutBtn.addEventListener('click', handleLogout);
+            
+            // Theme toggle event
+            themeToggle.addEventListener('click', toggleDarkMode);
+            
+            // Install button event
+            installBtnHeader.addEventListener('click', handleInstallClick);
+            
+            // Form events
+            openFormBtn.addEventListener('click', openForm);
+            closeFormBtn.addEventListener('click', closeForm);
+            btnAdd.addEventListener('click', addUser);
+            btnUpdate.addEventListener('click', updateUser);
+            btnDelete.addEventListener('click', deleteUser);
+            btnSaveCard.addEventListener('click', saveCardAsImage);
+            searchInput.addEventListener('input', filterUsers);
+            
+            // Filter click events
+            filterAll.addEventListener('click', () => setFilter('all'));
+            filterActive.addEventListener('click', () => setFilter('active'));
+            filterInactive.addEventListener('click', () => setFilter('inactive'));
+            filterOffline.addEventListener('click', () => setFilter('offline'));
+            
+            // Enhanced PWA Install events
+            window.addEventListener('beforeinstallprompt', (e) => {
+                console.log('✅ beforeinstallprompt event fired');
+                e.preventDefault();
+                deferredPrompt = e;
+                
+                // Show install button immediately
+                showInstallButton();
+                
+                // Auto-show install prompt after 3 seconds
+                setTimeout(() => {
+                    if (!installPromptShown && isAndroidChrome()) {
+                        handleNativeInstall();
+                    }
+                }, 3000);
+            });
+            
+            // App installed event
+            window.addEventListener('appinstalled', (evt) => {
+                console.log('✅ App installed successfully');
+                deferredPrompt = null;
+                installPromptShown = true;
+                
+                // Hide install button
+                if (installBtnHeader) {
+                    installBtnHeader.style.display = 'none';
+                }
+                
+                // Show success message and guide
+                showNotification("✅ App installed successfully!", "success", 5000);
+                setTimeout(() => {
+                    showAndroidGuide();
+                }, 2000);
+            });
+            
+            // Check if app is already installed
+            if (checkIfAppInstalled()) {
+                console.log('App is already installed');
+                installPromptShown = true;
+                if (installBtnHeader) {
+                    installBtnHeader.style.display = 'none';
+                }
+            }
+            
+            // Set initial stats
+            updateCounters(5, 5, 0, 0);
+            
+            // If logged in, load data
+            if (isLoggedIn) {
+                renderDemoUsers();
+                loadUsers();
+            }
+            
+            // Set today's date as default for expiry
+            const today = new Date();
+            const nextMonth = new Date(today);
+            nextMonth.setMonth(today.getMonth() + 1);
+            expiryInput.value = nextMonth.toISOString().split('T')[0];
+            expiryInput.min = today.toISOString().split('T')[0];
+            
+            // Check for expired demo users
+            checkAndDeleteExpiredUsers();
+            
+            // Auto-check for installability
+            setTimeout(() => {
+                checkInstallability();
+            }, 2000);
         });
-    };
-
-    window.openModal = () => {
-        document.getElementById('f-id').value = "";
-        document.getElementById('f-name').value = "";
-        document.getElementById('f-exp').value = "";
-        document.getElementById('f-price').value = "";
-        document.getElementById('userModal').style.display = 'flex';
-    };
-
-    window.closeModal = () => document.getElementById('userModal').style.display = 'none';
-
-    window.saveUser = async () => {
-        const id = document.getElementById('f-id').value;
-        if(!id) return alert("ID ရိုက်ပါ");
-        await setDoc(doc(db, "users", id), {
-            username: document.getElementById('f-name').value,
-            expiryDate: document.getElementById('f-exp').value,
-            price: document.getElementById('f-price').value,
-            isActive: document.getElementById('f-status').value === "true"
-        }, { merge: true });
-        closeModal();
-    };
-
-    window.editUser = (id) => {
-        const u = allUsersData.find(x => x.id === id);
-        document.getElementById('f-id').value = u.id;
-        document.getElementById('f-name').value = u.username;
-        document.getElementById('f-exp').value = u.expiryDate;
-        document.getElementById('f-price').value = u.price;
-        document.getElementById('f-status').value = u.isActive.toString();
-        document.getElementById('userModal').style.display = 'flex';
-    };
-
-    window.deleteUser = async (id) => {
-        if(confirm("ဖျက်မှာလား?")) await deleteDoc(doc(db, "users", id));
-    };
-
-    window.filterUsers = () => {
-        const q = document.getElementById('searchInput').value.toLowerCase();
-        renderUsers(allUsersData.filter(u => u.username.toLowerCase().includes(q) || u.id.toLowerCase().includes(q)));
-    };
-
-    window.saveImage = (btn) => {
-        const card = btn.closest('.user-card');
-        const actions = card.querySelector('.card-actions');
-        actions.style.display = 'none';
-        html2canvas(card, { scale: 3 }).then(canvas => {
-            const link = document.createElement('a');
-            link.download = 'User_Card.png';
-            link.href = canvas.toDataURL();
-            link.click();
-            actions.style.display = 'flex';
-        });
-    };
-</script>
+        
+        // Handle install button click
+        function handleInstallClick() {
+            if (deferredPrompt) {
+                // Use native install prompt
+                handleNativeInstall();
+            } else if (isAndroidChrome()) {
+                // Show Chrome menu instructions
+                showNotification("📱 Use Chrome menu (⋮) → 'Install app'", "info", 4000);
+            } else {
+                showBrowserInstructions();
+            }
+        }
+        
+        // Show install button
+        function showInstallButton() {
+            if (installBtnHeader && isAndroidChrome() && !installPromptShown) {
+                installBtnHeader.style.display = 'flex';
+                installBtnHeader.innerHTML = '<i class="fas fa-download"></i> Install App';
+            }
+        }
+        
+        // Check if PWA is installable
+        function checkInstallability() {
+            if (isAndroidChrome() && !installPromptShown && isLoggedIn) {
+                showInstallButton();
+                
+                // Show notification after 5 seconds
+                setTimeout(() => {
+                    if (!installPromptShown) {
+                        showNotification("📱 Tap 'Install App' to add to Home Screen", "info", 4000);
+                    }
+                }, 5000);
+            }
+        }
+        
+        // Handle native install
+        async function handleNativeInstall() {
+            if (deferredPrompt) {
+                try {
+                    // Show the install prompt
+                    deferredPrompt.prompt();
+                    
+                    // Wait for the user to respond to the prompt
+                    const { outcome } = await deferredPrompt.userChoice;
+                    
+                    console.log(`User response to install prompt: ${outcome}`);
+                    
+                    if (outcome === 'accepted') {
+                        console.log('✅ User accepted the install prompt');
+                        showNotification("⏳ Installing app...", "info", 3000);
+                        
+                        // The appinstalled event will handle the rest
+                    } else {
+                        console.log('User dismissed the install prompt');
+                        showNotification("ℹ️ You can install later from Chrome menu", "info", 3000);
+                        
+                        // Show Android guide for manual installation
+                        setTimeout(() => {
+                            showAndroidGuide();
+                        }, 1000);
+                    }
+                    
+                    // Clear the deferredPrompt variable
+                    deferredPrompt = null;
+                    
+                } catch (error) {
+                    console.error('Install error:', error);
+                    showNotification("❌ Install failed. Try Chrome menu", "error", 3000);
+                    
+                    // Show Android guide
+                    setTimeout(() => {
+                        showAndroidGuide();
+                    }, 1000);
+                }
+            } else {
+                // No deferred prompt available
+                showBrowserInstructions();
+            }
+        }
+        
+        // Show browser instructions
+        function showBrowserInstructions() {
+            if (isAndroidChrome()) {
+                const message = '📱 Android Chrome: Tap menu (⋮) → "Install app"';
+                showNotification(message, "info", 5000);
+            } else {
+                showNotification("📱 Use browser menu to install", "info", 3000);
+            }
+        }
+        
+        // Check and delete expired users
+        function checkAndDeleteExpiredUsers() {
+            const now = new Date();
+            const fortyEightHoursAgo = new Date(now.getTime() - (48 * 60 * 60 * 1000));
+            
+            // For demo users
+            let deletedCount = 0;
+            demoUsers = demoUsers.filter(user => {
+                if (user.expiryDate) {
+                    const expiryDate = new Date(user.expiryDate);
+                    if (expiryDate < fortyEightHoursAgo) {
+                        deletedCount++;
+                        return false;
+                    }
+                }
+                return true;
+            });
+            
+            if (deletedCount > 0) {
+                console.log(`Auto-deleted ${deletedCount} demo users expired for more than 48 hours`);
+                updateCounters(demoUsers.length, 
+                    demoUsers.filter(u => getUserStatus(u) === 'active').length,
+                    demoUsers.filter(u => getUserStatus(u) === 'inactive').length,
+                    demoUsers.filter(u => getUserStatus(u) === 'offline').length);
+            }
+            
+            // For Firebase users
+            if (allUsers.length > 0) {
+                allUsers.forEach(user => {
+                    if (user.expiryDate) {
+                        const expiryDate = new Date(user.expiryDate);
+                        if (expiryDate < fortyEightHoursAgo && user.isActive) {
+                            db.collection("users").doc(user.token).delete()
+                                .then(() => {
+                                    console.log(`Auto-deleted user ${user.token} expired for more than 48 hours`);
+                                })
+                                .catch(error => {
+                                    console.error("Error auto-deleting expired user:", error);
+                                });
+                        }
+                    }
+                });
+            }
+        }
+        
+        // Login handler
+        function handleLogin() {
+            const username = loginUsername.value.trim();
+            const password = loginPassword.value.trim();
+            
+            if (username === "yawyaw" && password === "lawtaung") {
+                isLoggedIn = true;
+                localStorage.setItem('jkvip_loggedin', 'true');
+                loginOverlay.style.display = 'none';
+                mainContainer.style.display = 'flex';
+                showNotification("✅ Login successful", "success");
+                
+                showInstallButton();
+                renderDemoUsers();
+                loadUsers();
+                checkAndDeleteExpiredUsers();
+                
+                setTimeout(() => {
+                    checkInstallability();
+                }, 1000);
+            } else {
+                loginError.textContent = "Invalid username or password";
+                loginPassword.value = "";
+                loginPassword.focus();
+            }
+        }
+        
+        // Logout handler
+        function handleLogout() {
+            if (confirm("Are you sure you want to logout?")) {
+                isLoggedIn = false;
+                localStorage.removeItem('jkvip_loggedin');
+                mainContainer.style.display = 'none';
+                loginOverlay.style.display = 'flex';
+                loginUsername.value = "";
+                loginPassword.value = "";
+                loginError.textContent = "";
+                showNotification("👋 Logged out successfully", "info");
+            }
+        }
+        
+        // Dark mode functions
+        function toggleDarkMode() {
+            if (isDarkMode) {
+                disableDarkMode();
+            } else {
+                enableDarkMode();
+            }
+        }
+        
+        function enableDarkMode() {
+            isDarkMode = true;
+            document.body.classList.add('dark-mode');
+            themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+            localStorage.setItem('jkvip_darkmode', 'true');
+        }
+        
+        function disableDarkMode() {
+            isDarkMode = false;
+            document.body.classList.remove('dark-mode');
+            themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+            localStorage.setItem('jkvip_darkmode', 'false');
+        }
+        
+        // Set active filter
+        function setFilter(filterType) {
+            currentFilter = filterType;
+            
+            [filterAll, filterActive, filterInactive, filterOffline].forEach(el => {
+                el.classList.remove('active-filter');
+            });
+            
+            switch(filterType) {
+                case 'all':
+                    filterAll.classList.add('active-filter');
+                    break;
+                case 'active':
+                    filterActive.classList.add('active-filter');
+                    break;
+                case 'inactive':
+                    filterInactive.classList.add('active-filter');
+                    break;
+                case 'offline':
+                    filterOffline.classList.add('active-filter');
+                    break;
+            }
+            
+            applyFilter();
+        }
+        
+        // Apply current filter
+        function applyFilter() {
+            if (currentFilter === 'all') {
+                filteredUsers = [...allUsers];
+            } else {
+                filteredUsers = allUsers.filter(user => {
+                    const status = getUserStatus(user);
+                    return status === currentFilter;
+                });
+            }
+            
+            const keyword = searchInput.value.toLowerCase().trim();
+            if (keyword) {
+                filteredUsers = filteredUsers.filter(user => 
+                    (user.token && user.token.toLowerCase().includes(keyword)) ||
+                    (user.username && user.username.toLowerCase().includes(keyword))
+                );
+            }
+            
+            if (allUsers.length > 0) {
+                renderUsers();
+            } else {
+                renderDemoUsers();
+            }
+        }
+        
+        // Load users from Firestore
+        function loadUsers() {
+            db.collection("users").onSnapshot((snapshot) => {
+                allUsers = [];
+                filteredUsers = [];
+                let activeCount = 0;
+                let inactiveCount = 0;
+                let offlineCount = 0;
+                
+                snapshot.forEach(doc => {
+                    const user = { token: doc.id, ...doc.data() };
+                    allUsers.push(user);
+                    
+                    const status = getUserStatus(user);
+                    if (status === 'active') activeCount++;
+                    else if (status === 'inactive') inactiveCount++;
+                    else if (status === 'offline') offlineCount++;
+                });
+                
+                if (allUsers.length === 0) {
+                    updateCounters(demoUsers.length, 
+                        demoUsers.filter(u => getUserStatus(u) === 'active').length,
+                        demoUsers.filter(u => getUserStatus(u) === 'inactive').length,
+                        demoUsers.filter(u => getUserStatus(u) === 'offline').length);
+                    renderDemoUsers();
+                } else {
+                    updateCounters(allUsers.length, activeCount, inactiveCount, offlineCount);
+                    applyFilter();
+                }
+                
+                checkAndDeleteExpiredUsers();
+            }, (error) => {
+                console.error("Error loading users:", error);
+                updateCounters(demoUsers.length, 
+                    demoUsers.filter(u => getUserStatus(u) === 'active').length,
+                    demoUsers.filter(u => getUserStatus(u) === 'inactive').length,
+                    demoUsers.filter(u => getUserStatus(u) === 'offline').length);
+                renderDemoUsers();
+                showNotification("⚠️ Using demo data", "info");
+            });
+        }
+        
+        // Get user status
+        function getUserStatus(user) {
+            if (!user.isActive) {
+                return 'inactive';
+            }
+            
+            if (user.expiryDate) {
+                const expiry = new Date(user.expiryDate);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                if (expiry < today) {
+                    return 'offline';
+                }
+            }
+            
+            return 'active';
+        }
+        
+        // Calculate days left and progress information
+        function getDaysLeftInfo(user) {
+            if (!user.expiryDate) {
+                return { 
+                    days: 'No date', 
+                    class: '', 
+                    percentage: 0, 
+                    color: '#cbd5e1' 
+                };
+            }
+            
+            const expiry = new Date(user.expiryDate);
+            const today = new Date();
+            const diffTime = expiry - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            let daysText, textClass, percentage, color;
+            
+            if (diffDays < 0) {
+                daysText = 'Expired';
+                textClass = 'days-red';
+                percentage = 0;
+                color = '#ff4444';
+            } else if (diffDays <= 30) {
+                daysText = `${diffDays} days`;
+                percentage = (diffDays / 30) * 100;
+                if (diffDays <= 3) {
+                    textClass = 'days-red';
+                    color = '#ff4444';
+                } else if (diffDays <= 10) {
+                    textClass = 'days-yellow';
+                    color = '#ff9800';
+                } else {
+                    textClass = 'days-green';
+                    color = '#4ade80';
+                }
+            } else {
+                daysText = `${diffDays} days`;
+                textClass = 'days-green';
+                percentage = 100;
+                color = '#4ade80';
+            }
+            
+            return { 
+                days: daysText, 
+                class: textClass, 
+                percentage: percentage, 
+                color: color 
+            };
+        }
+        
+        // Update counters
+        function updateCounters(total, active, inactive, offline) {
+            totalUsersEl.textContent = total;
+            activeUsersEl.textContent = active;
+            inactiveUsersEl.textContent = inactive;
+            offlineUsersEl.textContent = offline;
+        }
+        
+        // Render demo users
+        function renderDemoUsers() {
+            let source;
+            if (currentFilter === 'all') {
+                source = [...demoUsers];
+            } else {
+                source = demoUsers.filter(user => getUserStatus(user) === currentFilter);
+            }
+            
+            const keyword = searchInput.value.toLowerCase().trim();
+            const filtered = keyword ? source.filter(user => 
+                (user.token && user.token.toLowerCase().includes(keyword)) ||
+                (user.username && user.username.toLowerCase().includes(keyword))
+            ) : source;
+            
+            if (filtered.length === 0) {
+                usersList.innerHTML = `
+                <div class="empty-state-small">
+                    <i class="fas fa-users-slash"></i>
+                    <h3>No Users Found</h3>
+                    <p>Try a different filter or search</p>
+                </div>
+                `;
+                return;
+            }
+            
+            usersList.innerHTML = filtered.map(user => {
+                const status = getUserStatus(user);
+                const firstLetter = (user.username || user.token).charAt(0).toUpperCase();
+                const daysInfo = getDaysLeftInfo(user);
+                
+                return `
+                <div class="user-item ${status}" data-token="${user.token}">
+                    <div class="user-header-small">
+                        <div class="user-name-container">
+                            <div class="user-avatar">
+                                ${firstLetter}
+                                ${user.isPremium ? '<div class="premium-badge"><i class="fas fa-crown"></i></div>' : ''}
+                            </div>
+                            <div class="user-name-info">
+                                <div class="user-name">
+                                    ${user.username || user.token}
+                                    ${user.isPremium ? '<i class="fas fa-crown" style="color:#FFD700; font-size:10px;"></i>' : ''}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="user-status-small ${'status-' + status + '-small'}">
+                            ${status.toUpperCase()}
+                        </div>
+                    </div>
+                    <div class="user-details-small">
+                        <div class="detail-row">
+                            <i class="fas fa-key"></i>
+                            <span class="detail-label">Token ID:</span>
+                            <span class="detail-value">${user.token}</span>
+                        </div>
+                        <div class="detail-row">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span class="detail-label">Expired Date:</span>
+                            <span class="detail-value">${user.expiryDate || 'No date'}</span>
+                        </div>
+                        <div class="detail-row">
+                            <i class="fas fa-clock"></i>
+                            <span class="detail-label">Remaining Days:</span>
+                            <span class="detail-value ${daysInfo.class}">${daysInfo.days}</span>
+                        </div>
+                        <div class="progress-row">
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: ${daysInfo.percentage}%; background-color: ${daysInfo.color};"></div>
+                            </div>
+                            <span class="progress-text ${daysInfo.class}">
+                                <i class="fas fa-chart-line"></i> ${Math.round(daysInfo.percentage)}%
+                            </span>
+                        </div>
+                    </div>
+                    <div class="user-actions">
+                        <button class="user-action-btn edit-btn" onclick="fillForm('${user.token}')">
+                            <i class="fas fa-edit"></i>
+                            Edit
+                        </button>
+                        <button class="user-action-btn delete-btn" onclick="deleteUserDirectly('${user.token}')">
+                            <i class="fas fa-trash"></i>
+                            Delete
+                        </button>
+                        <button class="user-action-btn save-btn" onclick="saveUserCard('${user.token}')">
+                            <i class="fas fa-download"></i>
+                            Save
+                        </button>
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+        
+        // Render real users
+        function renderUsers() {
+            if (filteredUsers.length === 0) {
+                usersList.innerHTML = `
+                <div class="empty-state-small">
+                    <i class="fas fa-users-slash"></i>
+                    <h3>No Users Found</h3>
+                    <p>Try a different filter or search</p>
+                </div>
+                `;
+                return;
+            }
+            
+            usersList.innerHTML = filteredUsers.map(user => {
+                const status = getUserStatus(user);
+                const username = user.username || user.token;
+                const firstLetter = username.charAt(0).toUpperCase();
+                const daysInfo = getDaysLeftInfo(user);
+                
+                return `
+                <div class="user-item ${status}" data-token="${user.token}">
+                    <div class="user-header-small">
+                        <div class="user-name-container">
+                            <div class="user-avatar">
+                                ${firstLetter}
+                                ${user.isPremium ? '<div class="premium-badge"><i class="fas fa-crown"></i></div>' : ''}
+                            </div>
+                            <div class="user-name-info">
+                                <div class="user-name">
+                                    ${username}
+                                    ${user.isPremium ? '<i class="fas fa-crown" style="color:#FFD700; font-size:10px;"></i>' : ''}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="user-status-small ${'status-' + status + '-small'}">
+                            ${status.toUpperCase()}
+                        </div>
+                    </div>
+                    <div class="user-details-small">
+                        <div class="detail-row">
+                            <i class="fas fa-key"></i>
+                            <span class="detail-label">Token ID:</span>
+                            <span class="detail-value">${user.token}</span>
+                        </div>
+                        <div class="detail-row">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span class="detail-label">Expired Date:</span>
+                            <span class="detail-value">${user.expiryDate || 'No date'}</span>
+                        </div>
+                        <div class="detail-row">
+                            <i class="fas fa-clock"></i>
+                            <span class="detail-label">Remaining Days:</span>
+                            <span class="detail-value ${daysInfo.class}">${daysInfo.days}</span>
+                        </div>
+                        <div class="progress-row">
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: ${daysInfo.percentage}%; background-color: ${daysInfo.color};"></div>
+                            </div>
+                            <span class="progress-text ${daysInfo.class}">
+                                <i class="fas fa-chart-line"></i> ${Math.round(daysInfo.percentage)}%
+                            </span>
+                        </div>
+                    </div>
+                    <div class="user-actions">
+                        <button class="user-action-btn edit-btn" onclick="fillForm('${user.token}')">
+                            <i class="fas fa-edit"></i>
+                            Edit
+                        </button>
+                        <button class="user-action-btn delete-btn" onclick="deleteUserDirectly('${user.token}')">
+                            <i class="fas fa-trash"></i>
+                            Delete
+                        </button>
+                        <button class="user-action-btn save-btn" onclick="saveUserCard('${user.token}')">
+                            <i class="fas fa-download"></i>
+                            Save
+                        </button>
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+        
+        // Filter users
+        function filterUsers() {
+            applyFilter();
+        }
+        
+        // Form functions
+        function openForm() {
+            if (!isLoggedIn) {
+                showNotification("Please login first", "error");
+                return;
+            }
+            formOverlay.style.display = 'flex';
+            clearForm();
+        }
+        
+        function closeForm() {
+            formOverlay.style.display = 'none';
+            clearForm();
+        }
+        
+        function clearForm() {
+            tokenInput.value = '';
+            tokenInput.disabled = false;
+            usernameInput.value = '';
+            
+            const today = new Date();
+            const nextMonth = new Date(today);
+            nextMonth.setMonth(today.getMonth() + 1);
+            expiryInput.value = nextMonth.toISOString().split('T')[0];
+            
+            isActiveInput.checked = true;
+            isPremiumInput.checked = true;
+            currentEditToken = null;
+            currentEditUser = null;
+        }
+        
+        // Fill form with user data
+        function fillForm(token) {
+            if (!isLoggedIn) {
+                showNotification("Please login first", "error");
+                return;
+            }
+            
+            let user;
+            
+            if (allUsers.length > 0) {
+                user = allUsers.find(u => u.token === token);
+            } else {
+                user = demoUsers.find(u => u.token === token);
+            }
+            
+            if (!user) return;
+            
+            tokenInput.value = user.token;
+            tokenInput.disabled = true;
+            usernameInput.value = user.username || '';
+            expiryInput.value = user.expiryDate || '';
+            isActiveInput.checked = user.isActive || false;
+            isPremiumInput.checked = user.isPremium || false;
+            currentEditToken = user.token;
+            currentEditUser = user;
+            formOverlay.style.display = 'flex';
+        }
+        
+        // Delete user directly
+        function deleteUserDirectly(token) {
+            if (!isLoggedIn) {
+                showNotification("Please login first", "error");
+                return;
+            }
+            
+            if (!confirm(`Delete user "${token}"?`)) {
+                return;
+            }
+            
+            if (allUsers.length === 0) {
+                const index = demoUsers.findIndex(user => user.token === token);
+                if (index !== -1) {
+                    demoUsers.splice(index, 1);
+                    updateCounters(demoUsers.length, 
+                        demoUsers.filter(u => getUserStatus(u) === 'active').length,
+                        demoUsers.filter(u => getUserStatus(u) === 'inactive').length,
+                        demoUsers.filter(u => getUserStatus(u) === 'offline').length);
+                    applyFilter();
+                    showNotification("🗑️ Demo user deleted", "info");
+                }
+                return;
+            }
+            
+            db.collection("users").doc(token).delete()
+                .then(() => {
+                    showNotification("🗑️ User deleted", "success");
+                })
+                .catch(error => {
+                    showNotification("❌ Delete error: " + error.message, "error");
+                });
+        }
+        
+        // CRUD Operations - NEW to show alert modal
+        function addUser() {
+            if (!isLoggedIn) {
+                showNotification("Please login first", "error");
+                return;
+            }
+            
+            const token = tokenInput.value.trim();
+            const username = usernameInput.value.trim();
+            const expiryDate = expiryInput.value.trim();
+            const isActive = isActiveInput.checked;
+            const isPremium = isPremiumInput.checked;
+            
+            if (!token) {
+                showNotification("Token required", "error");
+                return;
+            }
+            
+            const user = {
+                username: username || token,
+                expiryDate: expiryDate,
+                isActive: isActive,
+                isPremium: isPremium
+            };
+            
+            db.collection("users").doc(token).set(user)
+                .then(() => {
+                    showAlertModal({token: token, ...user}, 'add');
+                    closeForm();
+                })
+                .catch(error => {
+                    showNotification("❌ Add error: " + error.message, "error");
+                });
+        }
+        
+        function updateUser() {
+            if (!isLoggedIn) {
+                showNotification("Please login first", "error");
+                return;
+            }
+            
+            const token = currentEditToken || tokenInput.value.trim();
+            
+            if (!token) {
+                showNotification("Select user to update", "error");
+                return;
+            }
+            
+            const user = {
+                username: usernameInput.value.trim(),
+                expiryDate: expiryInput.value.trim(),
+                isActive: isActiveInput.checked,
+                isPremium: isPremiumInput.checked
+            };
+            
+            db.collection("users").doc(token).set(user, { merge: true })
+                .then(() => {
+                    showAlertModal({token: token, ...user}, 'update');
+                    closeForm();
+                })
+                .catch(error => {
+                    showNotification("❌ Update error: " + error.message, "error");
+                });
+        }
+        
+        function deleteUser() {
+            if (!isLoggedIn) {
+                showNotification("Please login first", "error");
+                return;
+            }
+            
+            const token = currentEditToken || tokenInput.value.trim();
+            
+            if (!token) {
+                showNotification("Select user to delete", "error");
+                return;
+            }
+            
+            if (!confirm(`Delete user "${token}"?`)) {
+                return;
+            }
+            
+            db.collection("users").doc(token).delete()
+                .then(() => {
+                    showNotification("🗑️ User deleted", "success");
+                    closeForm();
+                })
+                .catch(error => {
+                    showNotification("❌ Delete error: " + error.message, "error");
+                });
+        }
+        
+        // Save card as image - FIXED VERSION
+        function saveCardAsImage() {
+            if (!isLoggedIn) {
+                showNotification("Please login first", "error");
+                return;
+            }
+            
+            const token = currentEditToken || tokenInput.value.trim();
+            
+            if (!token) {
+                showNotification("No user selected", "error");
+                return;
+            }
+            
+            let userCard = document.querySelector(`.user-item[data-token="${token}"]`);
+            
+            if (!userCard) {
+                const username = usernameInput.value.trim() || tokenInput.value.trim();
+                const firstLetter = username.charAt(0).toUpperCase();
+                const isActive = isActiveInput.checked;
+                const isPremium = isPremiumInput.checked;
+                const expiryDate = expiryInput.value.trim();
+                
+                const daysInfo = getDaysLeftInfo({
+                    token: token,
+                    expiryDate: expiryDate,
+                    isActive: isActive
+                });
+                
+                const status = isActive ? 'active' : 'inactive';
+                
+                userCard = document.createElement('div');
+                userCard.className = `user-item ${status}`;
+                userCard.style.backgroundColor = 'white';
+                userCard.style.color = '#1e293b';
+                userCard.innerHTML = `
+                    <div class="user-header-small">
+                        <div class="user-name-container">
+                            <div class="user-avatar">
+                                ${firstLetter}
+                                ${isPremium ? '<div class="premium-badge"><i class="fas fa-crown"></i></div>' : ''}
+                            </div>
+                            <div class="user-name-info">
+                                <div class="user-name">
+                                    ${username}
+                                    ${isPremium ? '<i class="fas fa-crown" style="color:#FFD700; font-size:10px;"></i>' : ''}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="user-status-small ${'status-' + status + '-small'}">
+                            ${status.toUpperCase()}
+                        </div>
+                    </div>
+                    <div class="user-details-small">
+                        <div class="detail-row">
+                            <i class="fas fa-key"></i>
+                            <span class="detail-label">Token ID:</span>
+                            <span class="detail-value">${token}</span>
+                        </div>
+                        <div class="detail-row">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span class="detail-label">Expired Date:</span>
+                            <span class="detail-value">${expiryDate || 'No date'}</span>
+                        </div>
+                        <div class="detail-row">
+                            <i class="fas fa-clock"></i>
+                            <span class="detail-label">Remaining Days:</span>
+                            <span class="detail-value ${daysInfo.class}">${daysInfo.days}</span>
+                        </div>
+                        <div class="progress-row">
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: ${daysInfo.percentage}%; background-color: ${daysInfo.color};"></div>
+                            </div>
+                            <span class="progress-text ${daysInfo.class}">
+                                <i class="fas fa-chart-line"></i> ${Math.round(daysInfo.percentage)}%
+                            </span>
+                        </div>
+                    </div>
+                `;
+                
+                userCard.style.width = '300px';
+                userCard.style.margin = '20px auto';
+                userCard.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
+                userCard.style.padding = '15px';
+                userCard.style.borderRadius = '10px';
+                document.body.appendChild(userCard);
+            }
+            
+            html2canvas(userCard, {
+                scale: 2,
+                backgroundColor: '#ffffff',
+                useCORS: true,
+                logging: true,
+                allowTaint: true
+            }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const link = document.createElement('a');
+                link.download = `VIP_User_${token}.png`;
+                link.href = imgData;
+                
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                if (!document.querySelector(`.user-item[data-token="${token}"]`)) {
+                    document.body.removeChild(userCard);
+                }
+                
+                showNotification("✅ Card saved as image", "success");
+            }).catch(error => {
+                console.error('Error saving card:', error);
+                showNotification("❌ Error saving image: " + error.message, "error");
+            });
+        }
+        
+        // Save user card
+        function saveUserCard(token) {
+            if (!isLoggedIn) {
+                showNotification("Please login first", "error");
+                return;
+            }
+            
+            const userCard = document.querySelector(`.user-item[data-token="${token}"]`);
+            
+            if (!userCard) {
+                showNotification("User card not found", "error");
+                return;
+            }
+            
+            html2canvas(userCard, {
+                scale: 2,
+                backgroundColor: '#ffffff',
+                useCORS: true,
+                logging: true,
+                allowTaint: true
+            }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const link = document.createElement('a');
+                link.download = `VIP_User_${token}.png`;
+                link.href = imgData;
+                
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                showNotification("✅ Card saved as image", "success");
+            }).catch(error => {
+                console.error('Error saving card:', error);
+                showNotification("❌ Error saving image: " + error.message, "error");
+            });
+        }
+        
+        // Notification system
+        function showNotification(message, type = "info", timeout = 3000) {
+            const icon = type === 'success' ? 'fas fa-check-circle' : 
+                        type === 'error' ? 'fas fa-exclamation-circle' : 
+                        'fas fa-info-circle';
+            
+            notification.innerHTML = `
+                <i class="${icon}"></i>
+                <span>${message}</span>
+            `;
+            
+            notification.className = `notification-small ${type} show`;
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, timeout);
+        }
+        
+        // Make functions available globally
+        window.fillForm = fillForm;
+        window.deleteUserDirectly = deleteUserDirectly;
+        window.saveUserCard = saveUserCard;
+    </script>
 </body>
-</html>
+    </html>
