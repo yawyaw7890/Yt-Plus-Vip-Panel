@@ -10,14 +10,12 @@
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Padauk:wght@400;700&display=swap');
         
         :root {
-            --primary: #818cf8;
-            --accent: #f472b6;
+            --primary: #2dd4bf;
+            --secondary: #3aa69a;
             --bg: #0f172a;
-            --glass: rgba(30, 41, 59, 0.7);
-            --border: rgba(255, 255, 255, 0.1);
+            --modal-bg: #ffffff;
             --danger: #f43f5e;
             --success: #10b981;
-            --logo-gradient: linear-gradient(to right, #fde68a, #fbbf24, #f59e0b, #fbbf24, #fde68a);
         }
 
         body {
@@ -29,131 +27,165 @@
             display: flex; flex-direction: column; align-items: center; min-height: 100vh;
         }
 
-        #login-screen { width: 100%; max-width: 350px; margin-top: 100px; animation: fadeIn 0.5s ease-out; }
-        #main-admin { width: 100%; max-width: 410px; display: none; }
+        /* --- Dashboard Structure --- */
+        #main-admin { width: 100%; max-width: 410px; }
 
-        /* --- Luxury VIP Card (Capture Area) --- */
+        /* --- Search Bar --- */
+        .search-container { position: relative; width: 100%; margin-bottom: 15px; }
+        .search-input {
+            width: 100%; padding: 12px 15px 12px 40px; background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; color: white;
+            box-sizing: border-box; outline: none; transition: 0.3s;
+        }
+        .search-input:focus { border-color: var(--primary); background: rgba(255, 255, 255, 0.15); }
+        .search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+
+        /* --- Modal Structure --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center;
+            z-index: 1000;
+        }
+        .user-form-card {
+            background: white; width: 90%; max-width: 380px; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3); animation: slideUp 0.3s ease;
+        }
+        .form-header {
+            background: var(--primary); padding: 20px; color: white;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .form-body { padding: 20px; color: #475569; }
+
+        /* --- Form Elements --- */
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: #1e293b; }
+        .form-control {
+            width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 10px;
+            box-sizing: border-box; font-family: inherit; font-size: 14px; background: #f8fafc;
+        }
+        .status-row { display: flex; justify-content: space-between; align-items: center; margin: 15px 0; }
+        
+        /* --- Switch --- */
+        .switch { position: relative; display: inline-block; width: 46px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--success); }
+        input:checked + .slider:before { transform: translateX(22px); }
+
+        /* --- Buttons --- */
+        .btn { border: none; padding: 12px; border-radius: 10px; color: white; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; }
+        .btn-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .btn-add { background: #3aa69a; }
+        .btn-update { background: #34968c; }
+        .btn-delete { background: #f43f5e; }
+        .btn-save-img { width: 100%; margin-top: 10px; background: #34968c; padding: 12px; border-radius: 10px; color: white; font-weight: bold; border: none; cursor: pointer; }
+
+        /* --- UI Card --- */
         #capture-area {
-            width: 100%; height: 230px;
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            border-radius: 24px; position: relative; overflow: hidden;
-            margin-bottom: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            border: 1px solid var(--border);
-            padding: 20px; box-sizing: border-box;
+            width: 100%; background: #fff; border-radius: 25px; padding: 25px;
+            box-sizing: border-box; color: #334155; margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
+        .avatar-box { width: 60px; height: 60px; background: #2a9d8f; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 28px; font-weight: bold; }
+        .info-row { display: flex; align-items: center; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+        .info-row i { width: 30px; color: var(--primary); }
+        .info-label { flex: 1; color: #64748b; }
+        .info-value { font-weight: 700; color: #1e293b; }
 
-        /* Logo ပုံ မပျောက်အောင် သေချာပြင်ဆင်ထားမှု */
-        .slip-logo { 
-            width: 80px; 
-            height: 80px; 
-            border-radius: 20px; 
-            margin-bottom: 12px; 
-            object-fit: cover;
-            border: 2px solid rgba(255,255,255,0.1);
-        }
-        
-        .slip-title { 
-            font-size: 26px; 
-            font-weight: 800; 
-            letter-spacing: 4px; 
-            margin-bottom: 15px; 
-            background: var(--logo-gradient);
-            -webkit-background-clip: text; 
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0px 5px 15px rgba(245, 158, 11, 0.3);
-        }
+        .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border-radius: 24px; padding: 20px; border: 1px solid rgba(255,255,255,0.1); }
+        .user-item { background: rgba(255,255,255,0.05); padding: 12px; border-radius: 12px; margin-bottom: 8px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; }
+        .user-item:hover { background: rgba(255,255,255,0.1); }
 
-        .slip-content { width: 90%; }
-        .slip-row { display: flex; justify-content: space-between; font-size: 11px; margin: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 4px; }
-        .slip-row b { color: var(--primary); }
-
-        .glass-panel { background: var(--glass); backdrop-filter: blur(15px); border-radius: 24px; padding: 25px; margin-bottom: 20px; border: 1px solid var(--border); }
-        .u-input { width: 100%; padding: 14px; margin-bottom: 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 14px; color: white; box-sizing: border-box; }
-        
-        .btn-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 15px; }
-        .btn-date { padding: 10px 0; border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: #94a3b8; cursor: pointer; font-size: 11px; }
-        .btn-date:hover, .btn-date.active-tab { background: var(--primary); color: white; }
-
-        .btn-main { width: 100%; padding: 16px; border-radius: 16px; border: none; background: linear-gradient(135deg, #6366f1, #a855f7); color: white; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .btn-logout { background: rgba(244, 63, 94, 0.2); color: var(--danger); border: 1px solid rgba(244, 63, 94, 0.3); padding: 8px 15px; border-radius: 12px; cursor: pointer; font-size: 12px; align-self: flex-end; }
-
-        .user-card { background: var(--glass); border-radius: 20px; padding: 18px; margin-bottom: 15px; border: 1px solid var(--border); position: relative; }
-        .user-header { display: flex; justify-content: space-between; align-items: flex-start; }
-        .user-name { font-size: 16px; font-weight: 700; color: #fff; }
-        .status-badge { font-size: 10px; padding: 2px 8px; border-radius: 20px; margin-left: 8px; text-transform: uppercase; }
-        .status-expired { background: rgba(244, 63, 94, 0.2); color: var(--danger); }
-        .status-active { background: rgba(16, 185, 129, 0.2); color: var(--success); }
-
-        .action-btns { display: flex; gap: 8px; }
-        .btn-action { width: 36px; height: 36px; border-radius: 12px; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; }
-        .progress-bar { width: 100%; height: 5px; background: rgba(255,255,255,0.05); border-radius: 10px; margin-top: 15px; }
-        .progress-fill { height: 100%; border-radius: 10px; }
-
-        .tab-bar { display: flex; gap: 10px; margin-bottom: 15px; }
-        .tab-item { flex: 1; padding: 10px; text-align: center; border-radius: 12px; background: rgba(255,255,255,0.05); cursor: pointer; font-size: 12px; transition: 0.3s; border: 1px solid var(--border); }
-        .tab-item.active { background: var(--primary); color: white; border-color: var(--primary); }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     </style>
 </head>
 <body>
 
-    <div id="login-screen" class="glass-panel">
-        <h2 style="text-align: center; margin-bottom: 25px;">ADMIN LOGIN</h2>
-        <input type="text" id="adminUser" class="u-input" placeholder="အသုံးပြုသူအမည်">
-        <input type="password" id="adminPass" class="u-input" placeholder="လျှို့ဝှက်နံပါတ်">
-        <button class="btn-main" onclick="checkLogin()">လော့ဂ်အင်ဝင်ရန်</button>
-    </div>
-
     <div id="main-admin">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <div>
-                <div style="font-weight: bold; color: var(--primary);">YT PLUS ADMIN</div>
-                <div style="font-size: 11px; color: #94a3b8;">Active Users: <span id="activeCount" style="color:var(--success)">0</span></div>
-            </div>
-            <button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
-        </div>
-
-        <div id="capture-area">
-            <img src="https://raw.githubusercontent.com/yawlawt/YTPlusVip/main/images/icon.png" alt="Logo" class="slip-logo" crossorigin="anonymous">
-            <div class="slip-title">YT PLUS VIP</div>
-            <div class="slip-content">
-                <div class="slip-row"><span>CUSTOMER ID</span> <b id="p-id">0000</b></div>
-                <div class="slip-row"><span>HOLDER NAME</span> <b id="p-name">CLIENT NAME</b></div>
-                <div class="slip-row"><span>EXPIRY DATE</span> <b id="p-exp">2026-XX-XX</b></div>
-            </div>
-        </div>
-
-        <div class="glass-panel">
-            <input type="text" id="docId" class="u-input" placeholder="ID (ဥပမာ - 8899)">
-            <input type="text" id="username" class="u-input" placeholder="အသုံးပြုသူအမည်">
-            <div class="btn-grid">
-                <button class="btn-date" onclick="setAutoDate(1)">1 ရက်</button>
-                <button class="btn-date" onclick="setAutoDate(30)">1 လ</button>
-                <button class="btn-date" onclick="setAutoDate(60)">2 လ</button>
-                <button class="btn-date" onclick="setAutoDate(90)">3 လ</button>
-            </div>
-            <input type="date" id="expiry" class="u-input">
-            <button class="btn-main" onclick="saveAndDownload()">
-                <i class="fas fa-save"></i> သိမ်းဆည်းမည်
+            <div style="font-weight: bold; color: var(--primary); font-size: 18px;">YT PLUS VIP</div>
+            <button class="btn" style="background:var(--primary); color:#0f172a; padding: 8px 18px; border-radius: 50px;" onclick="prepareNewUser()">
+                <i class="fas fa-plus-circle"></i> Add New
             </button>
         </div>
 
-        <div class="glass-panel" style="padding: 15px 20px;">
-            <div class="tab-bar">
-                <div class="tab-item active" id="tab-all" onclick="filterList('all')">အားလုံး (<span id="countNum">0</span>)</div>
-                <div class="tab-item" id="tab-active" onclick="filterList('active')">Active List</div>
+        <div id="capture-area">
+            <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
+                <div class="avatar-box"><span id="p-initial">?</span></div>
+                <div>
+                    <h2 id="p-name" style="margin:0; font-size:20px;">Preview Name 👑</h2>
+                    <span id="p-status-badge" style="background:#dcfce7; color:#166534; font-size:10px; padding:2px 10px; border-radius:20px; font-weight:bold;">ACTIVE</span>
+                </div>
             </div>
-            <input type="text" id="searchInput" class="u-input" style="margin-bottom:0;" placeholder="ရှာဖွေရန်..." oninput="searchUsers()">
+            <div class="info-row"><i class="fas fa-key"></i> <span class="info-label">Token ID</span> <span class="info-value" id="p-id">---</span></div>
+            <div class="info-row"><i class="fas fa-user"></i> <span class="info-label">Username</span> <span class="info-value" id="p-user-text">---</span></div>
+            <div class="info-row"><i class="fas fa-calendar-alt"></i> <span class="info-label">Expiry Date</span> <span class="info-value" id="p-exp">---</span></div>
+            <div class="info-row" style="border:none;"><i class="fas fa-money-bill-wave"></i> <span class="info-label">Price</span> <span class="info-value" id="p-price" style="color:#10b981">0 ฿</span></div>
         </div>
 
-        <div id="user-list-container"></div>
+        <div class="glass-panel">
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="searchInput" class="search-input" placeholder="ရှာဖွေရန်..." onkeyup="searchUsers()">
+            </div>
+            <div id="user-list-container"></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="userModal">
+        <div class="user-form-card">
+            <div class="form-header">
+                <span><i class="fas fa-user-plus"></i> <b>User Form</b></span>
+                <i class="fas fa-times" onclick="closeModal()" style="cursor:pointer"></i>
+            </div>
+            <div class="form-body">
+                <div class="input-group">
+                    <label>🔑 Token ID *</label>
+                    <input type="text" id="docId" class="form-control" placeholder="Enter unique token">
+                </div>
+                <div class="input-group">
+                    <label>👤 Username</label>
+                    <input type="text" id="username" class="form-control" placeholder="Enter username">
+                </div>
+                <div class="input-group">
+                    <label>📅 Expired Date</label>
+                    <input type="date" id="expiry" class="form-control">
+                </div>
+                <div class="input-group">
+                    <label>💰 Price</label>
+                    <div style="position:relative">
+                        <input type="number" id="price" class="form-control" placeholder="500">
+                        <span style="position:absolute; right:15px; top:12px; color:var(--success)">฿</span>
+                    </div>
+                </div>
+
+                <div class="status-row">
+                    <span><i class="fas fa-circle" style="color:var(--success); font-size:10px"></i> Active Status</span>
+                    <label class="switch">
+                        <input type="checkbox" id="statusToggle" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div style="margin-bottom:15px; font-size: 14px;">
+                    <input type="checkbox" id="isPremium" checked>
+                    <label for="isPremium">👑 Premium User</label>
+                </div>
+
+                <div class="btn-row">
+                    <button class="btn btn-add" onclick="saveUser()"><i class="fas fa-save"></i> Add</button>
+                    <button class="btn btn-update" onclick="saveUser()"><i class="fas fa-sync"></i> Update</button>
+                    <button class="btn btn-delete" onclick="deleteUser()"><i class="fas fa-trash"></i> Delete</button>
+                </div>
+                <button class="btn-save-img" onclick="downloadCard()"><i class="fas fa-image"></i> Save Card as Image</button>
+            </div>
+        </div>
     </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, doc, setDoc, onSnapshot, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, doc, setDoc, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyDGCsxM1ccZ_ZswwNPZDI-ykOm5yJU1CIw",
@@ -167,151 +199,102 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const usersCol = collection(db, "users");
-    let masterData = [];
-    let currentFilter = 'all'; 
+    let allUsers = [];
 
-    window.onload = () => {
-        if(localStorage.getItem("yt_admin_login") === "true") showAdminPanel();
+    // --- New User ပြင်ဆင်ခြင်း (Reset Form) ---
+    window.prepareNewUser = () => {
+        document.getElementById('docId').value = "";
+        document.getElementById('username').value = "";
+        document.getElementById('price').value = "";
+        document.getElementById('statusToggle').checked = true;
+        document.getElementById('isPremium').checked = true;
+        
+        // ယနေ့ရက်စွဲကို Auto ထည့်ပေးခြင်း
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('expiry').value = today;
+        
+        updatePreview();
+        document.getElementById('userModal').style.display = 'flex';
     };
 
-    window.checkLogin = () => {
-        const u = document.getElementById('adminUser').value;
-        const p = document.getElementById('adminPass').value;
-        if(u === "yawyaw" && p === "lawtaung") {
-            localStorage.setItem("yt_admin_login", "true");
-            showAdminPanel();
-        } else { alert("မှားယွင်းနေပါသည်။"); }
+    window.closeModal = () => document.getElementById('userModal').style.display = 'none';
+
+    function updatePreview() {
+        const name = document.getElementById('username').value || "CLIENT NAME";
+        document.getElementById('p-name').innerHTML = name + (document.getElementById('isPremium').checked ? " 👑" : "");
+        document.getElementById('p-initial').innerText = name.charAt(0).toUpperCase();
+        document.getElementById('p-id').innerText = document.getElementById('docId').value || "---";
+        document.getElementById('p-exp').innerText = document.getElementById('expiry').value || "---";
+        document.getElementById('p-price').innerText = (document.getElementById('price').value || 0) + " ฿";
+        
+        const statusBadge = document.getElementById('p-status-badge');
+        statusBadge.innerText = document.getElementById('statusToggle').checked ? "ACTIVE" : "INACTIVE";
+        statusBadge.style.background = document.getElementById('statusToggle').checked ? "#dcfce7" : "#fee2e2";
+        statusBadge.style.color = document.getElementById('statusToggle').checked ? "#166534" : "#991b1b";
+    }
+
+    window.searchUsers = () => {
+        const term = document.getElementById('searchInput').value.toLowerCase();
+        const filtered = allUsers.filter(u => u.username.toLowerCase().includes(term) || u.id.toLowerCase().includes(term));
+        renderList(filtered);
     };
 
-    window.logout = () => { localStorage.removeItem("yt_admin_login"); location.reload(); };
-
-    function showAdminPanel() {
-        document.getElementById('login-screen').style.display = "none";
-        document.getElementById('main-admin').style.display = "block";
-        onSnapshot(usersCol, (snap) => {
-            masterData = [];
-            snap.forEach(d => masterData.push({ id: d.id, ...d.data() }));
-            render();
+    function renderList(list) {
+        const container = document.getElementById("user-list-container");
+        container.innerHTML = "";
+        list.forEach(u => {
+            const div = document.createElement('div');
+            div.className = 'user-item';
+            div.innerHTML = `<div><b>${u.username}</b><br><small>${u.id}</small></div>
+                             <div style="font-size:12px; color:${u.isActive ? '#10b981' : '#f43f5e'}">${u.isActive ? 'Active' : 'Offline'}</div>`;
+            div.onclick = () => {
+                document.getElementById('docId').value = u.id;
+                document.getElementById('username').value = u.username;
+                document.getElementById('expiry').value = u.expiryDate;
+                document.getElementById('price').value = u.price || "";
+                document.getElementById('statusToggle').checked = u.isActive;
+                document.getElementById('isPremium').checked = u.isPremium;
+                updatePreview();
+                document.getElementById('userModal').style.display = 'flex';
+            };
+            container.appendChild(div);
         });
     }
 
-    window.filterList = (type) => {
-        currentFilter = type;
-        document.getElementById('tab-all').classList.toggle('active', type === 'all');
-        document.getElementById('tab-active').classList.toggle('active', type === 'active');
-        render();
+    onSnapshot(usersCol, (snap) => {
+        allUsers = [];
+        snap.forEach(d => allUsers.push({ id: d.id, ...d.data() }));
+        searchUsers();
+    });
+
+    window.saveUser = async () => {
+        const id = document.getElementById('docId').value;
+        if(!id) return alert("ID ရိုက်ထည့်ပါ");
+        await setDoc(doc(db, "users", id), {
+            username: document.getElementById('username').value,
+            expiryDate: document.getElementById('expiry').value,
+            price: document.getElementById('price').value,
+            isActive: document.getElementById('statusToggle').checked,
+            isPremium: document.getElementById('isPremium').checked
+        }, { merge: true });
+        closeModal();
     };
 
-    window.searchUsers = () => render();
-
-    window.render = async () => {
-        const container = document.getElementById("user-list-container");
-        const searchVal = document.getElementById('searchInput').value.toLowerCase();
-        
-        let displayList = masterData.filter(u => {
-            const matchesSearch = u.id.toLowerCase().includes(searchVal) || (u.username && u.username.toLowerCase().includes(searchVal));
-            const matchesTab = currentFilter === 'all' ? true : u.isActive === true;
-            return matchesSearch && matchesTab;
-        });
-
-        const activeUsers = masterData.filter(u => u.isActive).length;
-        document.getElementById("activeCount").innerText = activeUsers;
-        document.getElementById("countNum").innerText = masterData.length;
-
-        container.innerHTML = "";
-        displayList.sort((a, b) => new Date(a.expiryDate) - new Date(b.expiryDate));
-
-        const now = new Date().setHours(0,0,0,0);
-
-        for (const u of displayList) {
-            const expDate = new Date(u.expiryDate);
-            const days = Math.ceil((expDate - now) / (1000 * 60 * 60 * 24));
-            let status = u.isActive;
-
-            if (days < 0 && u.isActive) {
-                status = false;
-                await updateDoc(doc(db, "users", u.id), { isActive: false });
-            }
-
-            const myanDays = days < 0 ? "သက်တမ်းကုန်ပြီ" : (days === 0 ? "ယနေ့ကုန်မည်" : days + " ရက်ကျန်");
-            const color = days <= 3 ? "var(--danger)" : (days <= 7 ? "#fbbf24" : "var(--success)");
-
-            const div = document.createElement('div');
-            div.className = `user-card`;
-            div.style.borderLeft = `4px solid ${status ? 'var(--success)' : 'var(--danger)'}`;
-            
-            div.innerHTML = `
-                <div class="user-header">
-                    <div>
-                        <div class="user-name">${u.username} <span class="status-badge ${status ? 'status-active' : 'status-expired'}">${status ? 'Active' : 'Expired'}</span></div>
-                        <div style="font-size:12px; color:var(--primary)">ID: ${u.id}</div>
-                        <div style="font-size:11px; margin-top:5px; color:#94a3b8;"><i class="far fa-calendar-alt"></i> ${u.expiryDate} • <b style="color:${color}">${myanDays}</b></div>
-                    </div>
-                    <div class="action-btns">
-                        <button class="btn-action" style="background:rgba(255,255,255,0.05)" onclick="toggleStatus('${u.id}', ${!status})"><i class="fas ${!status ? 'fa-play' : 'fa-pause'}"></i></button>
-                        <button class="btn-action" style="background:rgba(99,102,241,0.1); color:var(--primary)" onclick="editU('${u.id}','${u.username}','${u.expiryDate}')"><i class="fas fa-edit"></i></button>
-                        <button class="btn-action" style="background:rgba(244,63,94,0.1); color:var(--danger)" onclick="deleteU('${u.id}')"><i class="fas fa-trash"></i></button>
-                    </div>
-                </div>
-                <div class="progress-bar">
-                    <div class="progress-fill" style="width:${days < 0 ? 0 : Math.min(100, (days/30)*100)}%; background:${color}; box-shadow: 0 0 8px ${color}66;"></div>
-                </div>`;
-            container.appendChild(div);
-        }
+    window.deleteUser = async () => {
+        const id = document.getElementById('docId').value;
+        if(id && confirm("ဖျက်မှာလား?")) { await deleteDoc(doc(db, "users", id)); closeModal(); }
     };
 
-    // --- ပုံမပျောက်အောင် သေချာပြင်ထားသော Save Function ---
-    window.saveAndDownload = async () => {
-        const id = document.getElementById('docId').value.trim();
-        const name = document.getElementById('username').value.trim();
-        const exp = document.getElementById('expiry').value;
-        
-        if(!id || !name || !exp) return alert("ဖြည့်စွက်ပါ");
-        
-        const isExpired = new Date(exp) < new Date().setHours(0,0,0,0);
-        await setDoc(doc(db, "users", id), { username: name, expiryDate: exp, isActive: !isExpired }, { merge: true });
-        
-        // Screenshot ရိုက်သည့်အပိုင်း
-        const captureArea = document.getElementById('capture-area');
-        
-        html2canvas(captureArea, {
-            scale: 3, // ပုံထွက် Quality ပိုကောင်းစေရန်
-            useCORS: true, // အခြား Website မှ Logo ပုံကို Screenshot ထဲပါလာအောင် ခွင့်ပြုချက်တောင်းရန်
-            allowTaint: true,
-            backgroundColor: "#0f172a",
-            logging: false
-        }).then(canvas => {
+    window.downloadCard = () => {
+        html2canvas(document.getElementById('capture-area'), { scale: 3 }).then(canvas => {
             const link = document.createElement('a');
-            link.download = `YT_VIP_${id}.png`;
-            link.href = canvas.toDataURL("image/png");
+            link.download = `VIP_${document.getElementById('username').value}.png`;
+            link.href = canvas.toDataURL();
             link.click();
         });
     };
 
-    window.toggleStatus = async (id, s) => await updateDoc(doc(db, "users", id), { isActive: s });
-    window.deleteU = async (id) => { if(confirm("ဖျက်မှာလား?")) await deleteDoc(doc(db, "users", id)); };
-    window.editU = (id, n, e) => {
-        document.getElementById('docId').value = id;
-        document.getElementById('username').value = n;
-        document.getElementById('expiry').value = e;
-        updatePreview();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
-
-    window.setAutoDate = (days) => {
-        const d = new Date(); d.setDate(d.getDate() + days);
-        document.getElementById('expiry').value = d.toISOString().split('T')[0];
-        updatePreview();
-    };
-
-    function updatePreview() {
-        document.getElementById('p-id').innerText = document.getElementById('docId').value || "0000";
-        document.getElementById('p-name').innerText = (document.getElementById('username').value || "CLIENT NAME").toUpperCase();
-        document.getElementById('p-exp').innerText = document.getElementById('expiry').value || "2026-XX-XX";
-    }
-
-    document.querySelectorAll('.u-input').forEach(el => el.oninput = updatePreview);
-
+    document.querySelectorAll('.form-control, input[type=checkbox]').forEach(el => el.oninput = updatePreview);
 </script>
 </body>
 </html>
