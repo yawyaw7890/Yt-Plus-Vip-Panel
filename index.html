@@ -3,182 +3,182 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YT PLUS VIP - Premium Admin</title>
+    <title>YT PLUS ADMIN</title>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Padauk:wght@400;700&display=swap');
         
         :root {
-            --primary: #2dd4bf;
-            --secondary: #3aa69a;
-            --bg: #0f172a;
-            --modal-bg: #ffffff;
-            --danger: #f43f5e;
-            --success: #10b981;
+            --primary-dark: #1e6b65;
+            --primary: #2a9d8f;
+            --bg-main: #f8fafc;
+            --white: #ffffff;
+            --active: #10b981;
+            --inactive: #f59e0b;
+            --offline: #ef4444;
         }
 
         body {
             font-family: 'Outfit', 'Padauk', sans-serif;
-            background: var(--bg);
-            background-image: radial-gradient(circle at top right, #1e1b4b, transparent), 
-                              radial-gradient(circle at bottom left, #020617, transparent);
-            margin: 0; padding: 20px; color: #f8fafc;
-            display: flex; flex-direction: column; align-items: center; min-height: 100vh;
+            background: #238b81;
+            margin: 0; padding: 0;
+            display: flex; flex-direction: column; align-items: center;
         }
 
-        /* --- Dashboard Structure --- */
-        #main-admin { width: 100%; max-width: 410px; }
+        /* --- Header Section --- */
+        .admin-header {
+            width: 100%; max-width: 450px;
+            padding: 20px; box-sizing: border-box; color: white;
+        }
+        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .app-info { display: flex; align-items: center; gap: 10px; }
+        .logo-box { width: 45px; height: 45px; background: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 20px; }
 
-        /* --- Search Bar --- */
-        .search-container { position: relative; width: 100%; margin-bottom: 15px; }
-        .search-input {
-            width: 100%; padding: 12px 15px 12px 40px; background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; color: white;
-            box-sizing: border-box; outline: none; transition: 0.3s;
+        /* --- Stats Row --- */
+        .stats-container {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px;
         }
-        .search-input:focus { border-color: var(--primary); background: rgba(255, 255, 255, 0.15); }
-        .search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+        .stat-card {
+            background: rgba(255,255,255,0.2); backdrop-filter: blur(5px);
+            padding: 10px 5px; border-radius: 10px; text-align: center;
+            cursor: pointer; transition: 0.3s; border: 1px solid transparent;
+        }
+        .stat-card:active { transform: scale(0.95); background: rgba(255,255,255,0.3); }
+        .stat-card.active-filter { border: 1px solid white; background: rgba(255,255,255,0.4); }
 
-        /* --- Modal Structure --- */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center;
-            z-index: 1000;
-        }
-        .user-form-card {
-            background: white; width: 90%; max-width: 380px; border-radius: 20px; overflow: hidden;
-            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3); animation: slideUp 0.3s ease;
-        }
-        .form-header {
-            background: var(--primary); padding: 20px; color: white;
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .form-body { padding: 20px; color: #475569; }
+        .stat-num { font-size: 20px; font-weight: 800; display: block; }
+        .stat-label { font-size: 10px; font-weight: bold; opacity: 0.9; }
 
-        /* --- Form Elements --- */
-        .input-group { margin-bottom: 15px; }
-        .input-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: #1e293b; }
-        .form-control {
-            width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 10px;
-            box-sizing: border-box; font-family: inherit; font-size: 14px; background: #f8fafc;
+        /* --- Content Body --- */
+        .main-content {
+            width: 100%; max-width: 450px; background: var(--bg-main);
+            border-top-left-radius: 30px; border-top-right-radius: 30px;
+            min-height: 80vh; padding: 20px; box-sizing: border-box;
         }
-        .status-row { display: flex; justify-content: space-between; align-items: center; margin: 15px 0; }
+
+        /* --- Search & Add --- */
+        .search-box {
+            background: white; border-radius: 10px; display: flex; align-items: center;
+            padding: 10px 15px; border: 1px solid #e2e8f0; margin-bottom: 15px;
+        }
+        .search-box input { border: none; outline: none; width: 100%; padding-left: 10px; }
+        .btn-add-main {
+            width: 100%; padding: 12px; background: var(--primary); color: white;
+            border: none; border-radius: 10px; font-weight: bold; font-size: 16px;
+            margin-bottom: 20px; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px;
+        }
+
+        /* --- User Card --- */
+        .user-card {
+            background: white; border-radius: 15px; padding: 15px;
+            margin-bottom: 15px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            border: 1px solid #f1f5f9; position: relative;
+        }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .user-profile { display: flex; align-items: center; gap: 10px; }
+        .avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .status-badge { font-size: 9px; padding: 3px 8px; border-radius: 20px; font-weight: bold; }
         
-        /* --- Switch --- */
-        .switch { position: relative; display: inline-block; width: 46px; height: 24px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
-        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: var(--success); }
-        input:checked + .slider:before { transform: translateX(22px); }
+        .info-grid { display: grid; grid-template-columns: 30px 100px 1fr; font-size: 13px; gap: 5px; margin-top: 5px; }
+        .info-grid i { color: var(--primary); }
+        .info-label { color: #64748b; }
+        .info-value { font-weight: 600; color: #1e293b; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-        /* --- Buttons --- */
-        .btn { border: none; padding: 12px; border-radius: 10px; color: white; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; }
-        .btn-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 15px; }
-        .btn-add { background: #3aa69a; }
-        .btn-update { background: #34968c; }
-        .btn-delete { background: #f43f5e; }
-        .btn-save-img { width: 100%; margin-top: 10px; background: #34968c; padding: 12px; border-radius: 10px; color: white; font-weight: bold; border: none; cursor: pointer; }
+        .progress-container { margin-top: 15px; }
+        .progress-bar { height: 6px; background: #e2e8f0; border-radius: 10px; overflow: hidden; margin-bottom: 5px; }
+        .progress-fill { height: 100%; background: var(--active); transition: 0.3s; }
 
-        /* --- UI Card --- */
-        #capture-area {
-            width: 100%; background: #fff; border-radius: 25px; padding: 25px;
-            box-sizing: border-box; color: #334155; margin-bottom: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-        .avatar-box { width: 60px; height: 60px; background: #2a9d8f; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 28px; font-weight: bold; overflow: hidden; }
-        .info-row { display: flex; align-items: center; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
-        .info-row i { width: 30px; color: var(--primary); }
-        .info-label { flex: 1; color: #64748b; }
-        .info-value { font-weight: 700; color: #1e293b; }
+        .card-actions { display: flex; gap: 8px; margin-top: 15px; border-top: 1px solid #f1f5f9; padding-top: 10px; }
+        .action-btn { flex: 1; padding: 8px; border: none; border-radius: 5px; font-size: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; }
 
-        .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border-radius: 24px; padding: 20px; border: 1px solid rgba(255,255,255,0.1); }
-        .user-item { background: rgba(255,255,255,0.05); padding: 12px; border-radius: 12px; margin-bottom: 8px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; }
-        .user-item:hover { background: rgba(255,255,255,0.1); }
+        /* --- Modal --- */
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 100; }
+        .modal-content { background: white; width: 95%; max-width: 380px; border-radius: 20px; padding: 20px; box-sizing: border-box; }
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 12px; font-weight: bold; margin-bottom: 5px; }
+        .form-group input { width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; box-sizing: border-box; }
 
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     </style>
 </head>
 <body>
 
-    <div id="main-admin">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <div style="font-weight: bold; color: var(--primary); font-size: 18px;">YT PLUS VIP</div>
-            <button class="btn" style="background:var(--primary); color:#0f172a; padding: 8px 18px; border-radius: 50px;" onclick="prepareNewUser()">
-                <i class="fas fa-plus-circle"></i> Add New
-            </button>
-        </div>
-
-        <div id="capture-area">
-            <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
-                <div class="avatar-box"><span id="p-initial">?</span></div>
+    <div class="admin-header">
+        <div class="header-top">
+            <div class="app-info">
+                <div class="logo-box"><i class="fab fa-youtube"></i></div>
                 <div>
-                    <h2 id="p-name" style="margin:0; font-size:20px;">Preview Name 👑</h2>
-                    <span id="p-status-badge" style="background:#dcfce7; color:#166534; font-size:10px; padding:2px 10px; border-radius:20px; font-weight:bold;">ACTIVE</span>
+                    <div style="font-weight: bold; font-size: 18px;">YT PLUS ADMIN</div>
+                    <div style="font-size: 11px; opacity: 0.8;">Manage VIP Users</div>
                 </div>
             </div>
-            <div class="info-row"><i class="fas fa-key"></i> <span class="info-label">Token ID</span> <span class="info-value" id="p-id">---</span></div>
-            <div class="info-row"><i class="fas fa-user"></i> <span class="info-label">Username</span> <span class="info-value" id="p-user-text">---</span></div>
-            <div class="info-row"><i class="fas fa-calendar-alt"></i> <span class="info-label">Expiry Date</span> <span class="info-value" id="p-exp">---</span></div>
-            <div class="info-row" style="border:none;"><i class="fas fa-money-bill-wave"></i> <span class="info-label">Price</span> <span class="info-value" id="p-price" style="color:#10b981">0 ฿</span></div>
+            <i class="fas fa-sign-out-alt"></i>
         </div>
 
-        <div class="glass-panel">
-            <div class="search-container">
-                <i class="fas fa-search search-icon"></i>
-                <input type="text" id="searchInput" class="search-input" placeholder="ရှာဖွေရန်..." onkeyup="searchUsers()">
+        <div class="stats-container">
+            <div class="stat-card" onclick="filterByStatus('all')">
+                <span class="stat-num" id="stat-all">0</span>
+                <span class="stat-label">ALL</span>
             </div>
-            <div id="user-list-container"></div>
+            <div class="stat-card" style="color: #4ade80;" onclick="filterByStatus('active')">
+                <span class="stat-num" id="stat-active">0</span>
+                <span class="stat-label">ACTIVE</span>
+            </div>
+            <div class="stat-card" style="color: #facc15;" onclick="filterByStatus('inactive')">
+                <span class="stat-num" id="stat-inactive">0</span>
+                <span class="stat-label">INACTIVE</span>
+            </div>
+            <div class="stat-card" style="color: #f87171;" onclick="filterByStatus('offline')">
+                <span class="stat-num" id="stat-offline">0</span>
+                <span class="stat-label">OFFLINE</span>
+            </div>
         </div>
+        <div style="text-align: center; font-size: 12px; opacity: 0.7;">Power By : Jue Htet</div>
     </div>
 
-    <div class="modal-overlay" id="userModal">
-        <div class="user-form-card">
-            <div class="form-header">
-                <span><i class="fas fa-user-plus"></i> <b>User Form</b></span>
-                <i class="fas fa-times" onclick="closeModal()" style="cursor:pointer"></i>
+    <div class="main-content">
+        <div class="search-box">
+            <i class="fas fa-search" style="color: #94a3b8;"></i>
+            <input type="text" id="searchInput" placeholder="Search users..." onkeyup="filterUsers()">
+        </div>
+
+        <button class="btn-add-main" onclick="openModal()">
+            <i class="fas fa-plus-circle"></i> Add New User
+        </button>
+
+        <div id="userList">
             </div>
-            <div class="form-body">
-                <div class="input-group">
-                    <label>🔑 Token ID *</label>
-                    <input type="text" id="docId" class="form-control" placeholder="Enter unique token">
-                </div>
-                <div class="input-group">
-                    <label>👤 Username</label>
-                    <input type="text" id="username" class="form-control" placeholder="Enter username">
-                </div>
-                <div class="input-group">
-                    <label>📅 Expired Date</label>
-                    <input type="date" id="expiry" class="form-control">
-                </div>
-                <div class="input-group">
-                    <label>💰 Price</label>
-                    <div style="position:relative">
-                        <input type="number" id="price" class="form-control" placeholder="500">
-                        <span style="position:absolute; right:15px; top:12px; color:var(--success)">฿</span>
-                    </div>
-                </div>
+    </div>
 
-                <div class="status-row">
-                    <span><i class="fas fa-circle" style="color:var(--success); font-size:10px"></i> Active Status</span>
-                    <label class="switch">
-                        <input type="checkbox" id="statusToggle" checked>
-                        <span class="slider"></span>
-                    </label>
-                </div>
-
-                <div style="margin-bottom:15px; font-size: 14px;">
-                    <input type="checkbox" id="isPremium" checked>
-                    <label for="isPremium">👑 Premium User</label>
-                </div>
-
-                <div class="btn-row">
-                    <button class="btn btn-add" onclick="saveUser()"><i class="fas fa-save"></i> Add</button>
-                    <button class="btn btn-update" onclick="saveUser()"><i class="fas fa-sync"></i> Update</button>
-                    <button class="btn btn-delete" onclick="deleteUser()"><i class="fas fa-trash"></i> Delete</button>
-                </div>
-                <button class="btn-save-img" onclick="downloadCard()"><i class="fas fa-image"></i> Save Card as Image</button>
+    <div class="modal" id="userModal">
+        <div class="modal-content">
+            <h3 style="margin-top: 0; color: var(--primary-dark);"><i class="fas fa-user-plus"></i> User Data</h3>
+            <div class="form-group">
+                <label>Token ID</label>
+                <input type="text" id="f-id" placeholder="Paste Token ID">
+            </div>
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" id="f-name" placeholder="User Name">
+            </div>
+            <div class="form-group">
+                <label>Expired Date</label>
+                <input type="date" id="f-exp">
+            </div>
+            <div class="form-group">
+                <label>Price (฿)</label>
+                <input type="number" id="f-price" placeholder="50">
+            </div>
+            <div class="form-group">
+                <label>Status</label>
+                <select id="f-status" style="width:100%; padding:10px; border-radius:8px; border:1px solid #e2e8f0;">
+                    <option value="true">Active</option>
+                    <option value="false">Offline</option>
+                </select>
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button onclick="saveUser()" style="flex:1; padding:12px; background:var(--primary); color:white; border:none; border-radius:8px; font-weight:bold;">SAVE DATA</button>
+                <button onclick="closeModal()" style="flex:1; padding:12px; background:#e2e8f0; border:none; border-radius:8px;">CANCEL</button>
             </div>
         </div>
     </div>
@@ -199,119 +199,152 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const usersCol = collection(db, "users");
-    let allUsers = [];
+    let allUsersData = [];
 
-    // --- Update Preview Function ---
-    function updatePreview() {
-        const usernameInput = document.getElementById('username').value;
-        const name = usernameInput || "CLIENT NAME";
-        const isPremium = document.getElementById('isPremium').checked;
-        const isActive = document.getElementById('statusToggle').checked;
-        
-        // Update Card UI
-        document.getElementById('p-name').innerHTML = name + (isPremium ? " 👑" : "");
-        document.getElementById('p-initial').innerText = name.charAt(0).toUpperCase();
-        document.getElementById('p-user-text').innerText = name;
-        document.getElementById('p-id').innerText = document.getElementById('docId').value || "---";
-        document.getElementById('p-exp').innerText = document.getElementById('expiry').value || "---";
-        document.getElementById('p-price').innerText = (document.getElementById('price').value || 0) + " ฿";
-        
-        const statusBadge = document.getElementById('p-status-badge');
-        statusBadge.innerText = isActive ? "ACTIVE" : "INACTIVE";
-        statusBadge.style.background = isActive ? "#dcfce7" : "#fee2e2";
-        statusBadge.style.color = isActive ? "#166534" : "#991b1b";
-    }
+    onSnapshot(usersCol, (snap) => {
+        allUsersData = [];
+        let active = 0, offline = 0, inactive = 0;
+        const today = new Date();
 
-    // --- Exposed Global Functions ---
-    window.prepareNewUser = () => {
-        document.getElementById('docId').value = "";
-        document.getElementById('username').value = "";
-        document.getElementById('price').value = "";
-        document.getElementById('statusToggle').checked = true;
-        document.getElementById('isPremium').checked = true;
+        snap.forEach(d => {
+            const data = { id: d.id, ...d.data() };
+            allUsersData.push(data);
+            
+            const expDate = new Date(data.expiryDate);
+            const isExpired = expDate < today;
+
+            if(isExpired) {
+                inactive++;
+            } else if(data.isActive) {
+                active++;
+            } else {
+                offline++;
+            }
+        });
+        document.getElementById('stat-all').innerText = allUsersData.length;
+        document.getElementById('stat-active').innerText = active;
+        document.getElementById('stat-inactive').innerText = inactive;
+        document.getElementById('stat-offline').innerText = offline;
+        renderUsers(allUsersData);
+    });
+
+    // Filter by Status Function
+    window.filterByStatus = (status) => {
+        const today = new Date();
+        let filtered = [];
+
+        // UI highlight for selection
+        document.querySelectorAll('.stat-card').forEach(card => card.classList.remove('active-filter'));
         
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById('expiry').value = today;
-        
-        updatePreview();
+        if(status === 'all') {
+            filtered = allUsersData;
+        } else if(status === 'active') {
+            filtered = allUsersData.filter(u => u.isActive && new Date(u.expiryDate) >= today);
+        } else if(status === 'inactive') {
+            filtered = allUsersData.filter(u => new Date(u.expiryDate) < today);
+        } else if(status === 'offline') {
+            filtered = allUsersData.filter(u => !u.isActive && new Date(u.expiryDate) >= today);
+        }
+
+        renderUsers(filtered);
+    };
+
+    window.renderUsers = (data) => {
+        const list = document.getElementById('userList');
+        list.innerHTML = "";
+        data.forEach(user => {
+            const exp = new Date(user.expiryDate);
+            const remain = Math.ceil((exp - new Date()) / (1000 * 60 * 60 * 24));
+            const days = remain > 0 ? remain : 0;
+            const percent = Math.min(100, Math.max(3, (days / 30) * 100));
+            
+            const isExpired = remain <= 0;
+
+            const card = document.createElement('div');
+            card.className = 'user-card';
+            card.innerHTML = `
+                <div class="card-header">
+                    <div class="user-profile">
+                        <div class="avatar">${(user.username || "U").charAt(0).toUpperCase()}</div>
+                        <div style="font-weight: bold; color: #1e293b;">${user.username} 👑</div>
+                    </div>
+                    <span class="status-badge" style="background:${isExpired ? '#fef3c7' : (user.isActive ? '#dcfce7':'#fee2e2')}; color:${isExpired ? '#92400e' : (user.isActive ? '#166534':'#991b1b')}">
+                        ${isExpired ? 'INACTIVE' : (user.isActive ? 'ACTIVE' : 'OFFLINE')}
+                    </span>
+                </div>
+                <div class="info-grid"><i class="fas fa-key"></i> <span class="info-label">Token ID:</span> <span class="info-value">${user.id}</span></div>
+                <div class="info-grid"><i class="fas fa-calendar-alt"></i> <span class="info-label">Expired Date:</span> <span class="info-value">${user.expiryDate}</span></div>
+                <div class="info-grid"><i class="fas fa-coins"></i> <span class="info-label">Price:</span> <span class="info-value" style="color:var(--primary)">${user.price} ฿</span></div>
+                <div class="info-grid"><i class="fas fa-clock"></i> <span class="info-label">Remaining Days:</span> <span class="info-value" style="color:${days < 3 ? 'red':'#10b981'}">${days} days</span></div>
+                
+                <div class="progress-container">
+                    <div class="progress-bar"><div class="progress-fill" style="width: ${percent}%; background: ${days < 3 ? '#f43f5e':'#2a9d8f'}"></div></div>
+                    <div style="text-align:right; font-size:10px; color:#94a3b8;"><i class="fas fa-chart-line"></i> ${Math.floor(percent)}%</div>
+                </div>
+
+                <div class="card-actions">
+                    <button class="action-btn" style="background:#f1f5f9;" onclick="editUser('${user.id}')"><i class="fas fa-edit"></i> Edit</button>
+                    <button class="action-btn" style="background:#fee2e2; color:#ef4444;" onclick="deleteUser('${user.id}')"><i class="fas fa-trash"></i> Delete</button>
+                    <button class="action-btn" style="background:#dcfce7; color:#166534;" onclick="saveImage(this)"><i class="fas fa-save"></i> Save</button>
+                </div>
+            `;
+            list.appendChild(card);
+        });
+    };
+
+    window.openModal = () => {
+        document.getElementById('f-id').value = "";
+        document.getElementById('f-name').value = "";
+        document.getElementById('f-exp').value = "";
+        document.getElementById('f-price').value = "";
         document.getElementById('userModal').style.display = 'flex';
     };
 
     window.closeModal = () => document.getElementById('userModal').style.display = 'none';
 
-    window.searchUsers = () => {
-        const term = document.getElementById('searchInput').value.toLowerCase();
-        const filtered = allUsers.filter(u => 
-            (u.username && u.username.toLowerCase().includes(term)) || 
-            (u.id && u.id.toLowerCase().includes(term))
-        );
-        renderList(filtered);
-    };
-
-    function renderList(list) {
-        const container = document.getElementById("user-list-container");
-        container.innerHTML = "";
-        list.forEach(u => {
-            const div = document.createElement('div');
-            div.className = 'user-item';
-            div.innerHTML = `<div><b>${u.username || 'No Name'}</b><br><small>${u.id}</small></div>
-                             <div style="font-size:12px; color:${u.isActive ? '#10b981' : '#f43f5e'}">${u.isActive ? 'Active' : 'Offline'}</div>`;
-            div.onclick = () => {
-                document.getElementById('docId').value = u.id;
-                document.getElementById('username').value = u.username || "";
-                document.getElementById('expiry').value = u.expiryDate || "";
-                document.getElementById('price').value = u.price || "";
-                document.getElementById('statusToggle').checked = u.isActive;
-                document.getElementById('isPremium').checked = u.isPremium;
-                updatePreview();
-                document.getElementById('userModal').style.display = 'flex';
-            };
-            container.appendChild(div);
-        });
-    }
-
-    // Real-time listener
-    onSnapshot(usersCol, (snap) => {
-        allUsers = [];
-        snap.forEach(d => allUsers.push({ id: d.id, ...d.data() }));
-        searchUsers();
-    });
-
     window.saveUser = async () => {
-        const id = document.getElementById('docId').value;
-        if(!id) return alert("ID ရိုက်ထည့်ပါ");
+        const id = document.getElementById('f-id').value;
+        if(!id) return alert("ID ရိုက်ပါ");
         await setDoc(doc(db, "users", id), {
-            username: document.getElementById('username').value,
-            expiryDate: document.getElementById('expiry').value,
-            price: document.getElementById('price').value,
-            isActive: document.getElementById('statusToggle').checked,
-            isPremium: document.getElementById('isPremium').checked
+            username: document.getElementById('f-name').value,
+            expiryDate: document.getElementById('f-exp').value,
+            price: document.getElementById('f-price').value,
+            isActive: document.getElementById('f-status').value === "true"
         }, { merge: true });
         closeModal();
     };
 
-    window.deleteUser = async () => {
-        const id = document.getElementById('docId').value;
-        if(id && confirm("ဖျက်မှာလား?")) { await deleteDoc(doc(db, "users", id)); closeModal(); }
+    window.editUser = (id) => {
+        const u = allUsersData.find(x => x.id === id);
+        document.getElementById('f-id').value = u.id;
+        document.getElementById('f-name').value = u.username;
+        document.getElementById('f-exp').value = u.expiryDate;
+        document.getElementById('f-price').value = u.price;
+        document.getElementById('f-status').value = u.isActive.toString();
+        document.getElementById('userModal').style.display = 'flex';
     };
 
-    window.downloadCard = () => {
-        html2canvas(document.getElementById('capture-area'), { scale: 3 }).then(canvas => {
+    window.deleteUser = async (id) => {
+        if(confirm("ဖျက်မှာလား?")) await deleteDoc(doc(db, "users", id));
+    };
+
+    window.filterUsers = () => {
+        const q = document.getElementById('searchInput').value.toLowerCase();
+        renderUsers(allUsersData.filter(u => u.username.toLowerCase().includes(q) || u.id.toLowerCase().includes(q)));
+    };
+
+    window.saveImage = (btn) => {
+        const card = btn.closest('.user-card');
+        const actions = card.querySelector('.card-actions');
+        actions.style.display = 'none';
+        html2canvas(card, { scale: 3 }).then(canvas => {
             const link = document.createElement('a');
-            link.download = `VIP_${document.getElementById('username').value || 'User'}.png`;
+            link.download = 'User_Card.png';
             link.href = canvas.toDataURL();
             link.click();
+            actions.style.display = 'flex';
         });
     };
-
-    // --- Attach Event Listeners for real-time update ---
-    // ဒါက Username နဲ့ အခြား Input တွေ ရိုက်တာနဲ့ Preview မှာ တန်းပေါ်အောင် လုပ်ပေးတာပါ
-    const inputs = document.querySelectorAll('#username, #docId, #expiry, #price, #statusToggle, #isPremium');
-    inputs.forEach(input => {
-        input.addEventListener('input', updatePreview);
-        input.addEventListener('change', updatePreview);
-    });
-
 </script>
 </body>
 </html>
